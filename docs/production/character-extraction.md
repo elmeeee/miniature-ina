@@ -1,6 +1,8 @@
 # Character extraction report
 
-The original `assets/source/characters-sheet.png` is present on `main`. Pixel validation found a 1536 × 1024 PNG with fully opaque pixels and no pixel transparency. No crops have been approved. The manifest is empty, and all twelve characters use initials. Review the background, face boundaries and identities before approving any crops. The current extractor requires at least one fully opaque pixel in each crop. See the [validation report](asset-validation.json).
+The 1536 × 1024 character sheet contains 35 portrait tiles and eight expressions for Bima. The [crop plan](../../assets/source/extraction-plan.json) records reviewed rectangles and the source checksum. Each crop keeps its source background. Pixel validation found the sheet and all crops fully opaque.
+
+Bima Aditya Pratama and Anindita Prameswari are linked to the playable roster. Other crops keep the identities or role labels printed on the sheet and are listed separately in [sheet identities](../../assets/source/sheet-identities.json). For example, Laras Prameswari and Maya Kusumadewi are separate from Ratna Kusuma and Maya Santoso. The sheet also depicts Dewi Lestari as KPK chair, while the playable roster defines a civil-society figure with that name, so the crop is catalogued separately pending identity confirmation. The other ten active characters use initials. See the [validation report](asset-validation.json).
 
 ## Review and extract
 

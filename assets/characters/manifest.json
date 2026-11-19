@@ -1,4 +1,120 @@
 {
   "version": 1,
-  "characters": {}
+  "characters": {
+    "bima_aditya_pratama": {
+      "portrait": "presidents/bima_aditya_pratama/portrait.png",
+      "expressions": {
+        "neutral": "presidents/bima_aditya_pratama/expressions/neutral.png",
+        "disagree": "presidents/bima_aditya_pratama/expressions/disagree.png",
+        "serious": "presidents/bima_aditya_pratama/expressions/serious.png",
+        "angry": "presidents/bima_aditya_pratama/expressions/angry.png",
+        "thinking": "presidents/bima_aditya_pratama/expressions/thinking.png",
+        "disappointed": "presidents/bima_aditya_pratama/expressions/disappointed.png",
+        "agree": "presidents/bima_aditya_pratama/expressions/agree.png",
+        "optimistic": "presidents/bima_aditya_pratama/expressions/optimistic.png"
+      }
+    },
+    "laras_prameswari": {
+      "portrait": "presidents/laras_prameswari/portrait.png"
+    },
+    "anindita_prameswari": {
+      "portrait": "ministers/anindita_prameswari/portrait.png"
+    },
+    "fajar_wiratama": {
+      "portrait": "ministers/fajar_wiratama/portrait.png"
+    },
+    "rudi_hartono": {
+      "portrait": "ministers/rudi_hartono/portrait.png"
+    },
+    "sari_hidayati": {
+      "portrait": "ministers/sari_hidayati/portrait.png"
+    },
+    "damar_suryana": {
+      "portrait": "ministers/damar_suryana/portrait.png"
+    },
+    "ibrahim_santosa": {
+      "portrait": "ministers/ibrahim_santosa/portrait.png"
+    },
+    "maya_kusumadewi": {
+      "portrait": "ministers/maya_kusumadewi/portrait.png"
+    },
+    "andi_wibowo": {
+      "portrait": "ministers/andi_wibowo/portrait.png"
+    },
+    "giri_mahendra": {
+      "portrait": "ministers/giri_mahendra/portrait.png"
+    },
+    "ratri_wulandari": {
+      "portrait": "ministers/ratri_wulandari/portrait.png"
+    },
+    "dewangga_pratama": {
+      "portrait": "ministers/dewangga_pratama/portrait.png"
+    },
+    "ketua_partai_nusantara": {
+      "portrait": "politicians/ketua_partai_nusantara/portrait.png"
+    },
+    "ketua_partai_persatuan_rakyat": {
+      "portrait": "politicians/ketua_partai_persatuan_rakyat/portrait.png"
+    },
+    "ketua_partai_kemajuan": {
+      "portrait": "politicians/ketua_partai_kemajuan/portrait.png"
+    },
+    "ketua_partai_keadilan_sosial": {
+      "portrait": "politicians/ketua_partai_keadilan_sosial/portrait.png"
+    },
+    "ketua_partai_hijau_indonesia": {
+      "portrait": "politicians/ketua_partai_hijau_indonesia/portrait.png"
+    },
+    "raka_mahendra": {
+      "portrait": "advisors/raka_mahendra/portrait.png"
+    },
+    "nadia_kirana": {
+      "portrait": "civilians/nadia_kirana/portrait.png"
+    },
+    "budi_santoso": {
+      "portrait": "advisors/budi_santoso/portrait.png"
+    },
+    "hadi_wiranata": {
+      "portrait": "officials/hadi_wiranata/portrait.png"
+    },
+    "dewi_lestari_kpk": {
+      "portrait": "officials/dewi_lestari_kpk/portrait.png"
+    },
+    "idris_maulana": {
+      "portrait": "civilians/idris_maulana/portrait.png"
+    },
+    "andika_permana": {
+      "portrait": "politicians/andika_permana/portrait.png"
+    },
+    "npc_petani": {
+      "portrait": "civilians/npc_petani/portrait.png"
+    },
+    "npc_pelajar": {
+      "portrait": "civilians/npc_pelajar/portrait.png"
+    },
+    "npc_pekerja_industri": {
+      "portrait": "civilians/npc_pekerja_industri/portrait.png"
+    },
+    "npc_pelaku_umkm": {
+      "portrait": "civilians/npc_pelaku_umkm/portrait.png"
+    },
+    "npc_nelayan": {
+      "portrait": "civilians/npc_nelayan/portrait.png"
+    },
+    "npc_tokoh_daerah": {
+      "portrait": "civilians/npc_tokoh_daerah/portrait.png"
+    },
+    "npc_aktivis_mahasiswa": {
+      "portrait": "civilians/npc_aktivis_mahasiswa/portrait.png"
+    },
+    "npc_demonstran": {
+      "portrait": "civilians/npc_demonstran/portrait.png"
+    },
+    "npc_kru_media": {
+      "portrait": "civilians/npc_kru_media/portrait.png"
+    },
+    "npc_aparatur_daerah": {
+      "portrait": "civilians/npc_aparatur_daerah/portrait.png"
+    }
+  }
 }

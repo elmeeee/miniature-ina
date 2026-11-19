@@ -1,4 +1,392 @@
 {
-  "sourceSha256": null,
-  "crops": []
+  "sourceSha256": "f46f41d6744183c1782a649fcac309d154e4fb1ab10207c520d39e0253a5264e",
+  "crops": [
+    {
+      "characterId": "bima_aditya_pratama",
+      "variant": "portrait",
+      "left": 964,
+      "top": 0,
+      "width": 204,
+      "height": 174,
+      "reviewed": true
+    },
+    {
+      "characterId": "laras_prameswari",
+      "variant": "portrait",
+      "left": 1231,
+      "top": 1,
+      "width": 231,
+      "height": 173,
+      "reviewed": true
+    },
+    {
+      "characterId": "anindita_prameswari",
+      "variant": "portrait",
+      "left": 25,
+      "top": 288,
+      "width": 132,
+      "height": 140,
+      "reviewed": true
+    },
+    {
+      "characterId": "fajar_wiratama",
+      "variant": "portrait",
+      "left": 167,
+      "top": 288,
+      "width": 126,
+      "height": 140,
+      "reviewed": true
+    },
+    {
+      "characterId": "rudi_hartono",
+      "variant": "portrait",
+      "left": 303,
+      "top": 288,
+      "width": 126,
+      "height": 140,
+      "reviewed": true
+    },
+    {
+      "characterId": "sari_hidayati",
+      "variant": "portrait",
+      "left": 439,
+      "top": 288,
+      "width": 126,
+      "height": 140,
+      "reviewed": true
+    },
+    {
+      "characterId": "damar_suryana",
+      "variant": "portrait",
+      "left": 575,
+      "top": 282,
+      "width": 126,
+      "height": 146,
+      "reviewed": true
+    },
+    {
+      "characterId": "ibrahim_santosa",
+      "variant": "portrait",
+      "left": 711,
+      "top": 288,
+      "width": 127,
+      "height": 140,
+      "reviewed": true
+    },
+    {
+      "characterId": "maya_kusumadewi",
+      "variant": "portrait",
+      "left": 848,
+      "top": 288,
+      "width": 126,
+      "height": 140,
+      "reviewed": true
+    },
+    {
+      "characterId": "andi_wibowo",
+      "variant": "portrait",
+      "left": 984,
+      "top": 288,
+      "width": 125,
+      "height": 140,
+      "reviewed": true
+    },
+    {
+      "characterId": "giri_mahendra",
+      "variant": "portrait",
+      "left": 1120,
+      "top": 288,
+      "width": 126,
+      "height": 140,
+      "reviewed": true
+    },
+    {
+      "characterId": "ratri_wulandari",
+      "variant": "portrait",
+      "left": 1256,
+      "top": 288,
+      "width": 126,
+      "height": 140,
+      "reviewed": true
+    },
+    {
+      "characterId": "dewangga_pratama",
+      "variant": "portrait",
+      "left": 1392,
+      "top": 288,
+      "width": 126,
+      "height": 140,
+      "reviewed": true
+    },
+    {
+      "characterId": "ketua_partai_nusantara",
+      "variant": "portrait",
+      "left": 24,
+      "top": 564,
+      "width": 116,
+      "height": 112,
+      "reviewed": true
+    },
+    {
+      "characterId": "ketua_partai_persatuan_rakyat",
+      "variant": "portrait",
+      "left": 152,
+      "top": 564,
+      "width": 113,
+      "height": 112,
+      "reviewed": true
+    },
+    {
+      "characterId": "ketua_partai_kemajuan",
+      "variant": "portrait",
+      "left": 277,
+      "top": 564,
+      "width": 113,
+      "height": 112,
+      "reviewed": true
+    },
+    {
+      "characterId": "ketua_partai_keadilan_sosial",
+      "variant": "portrait",
+      "left": 401,
+      "top": 564,
+      "width": 114,
+      "height": 112,
+      "reviewed": true
+    },
+    {
+      "characterId": "ketua_partai_hijau_indonesia",
+      "variant": "portrait",
+      "left": 526,
+      "top": 564,
+      "width": 115,
+      "height": 112,
+      "reviewed": true
+    },
+    {
+      "characterId": "raka_mahendra",
+      "variant": "portrait",
+      "left": 683,
+      "top": 568,
+      "width": 113,
+      "height": 124,
+      "reviewed": true
+    },
+    {
+      "characterId": "nadia_kirana",
+      "variant": "portrait",
+      "left": 808,
+      "top": 568,
+      "width": 115,
+      "height": 124,
+      "reviewed": true
+    },
+    {
+      "characterId": "budi_santoso",
+      "variant": "portrait",
+      "left": 935,
+      "top": 568,
+      "width": 108,
+      "height": 124,
+      "reviewed": true
+    },
+    {
+      "characterId": "hadi_wiranata",
+      "variant": "portrait",
+      "left": 1055,
+      "top": 568,
+      "width": 110,
+      "height": 124,
+      "reviewed": true
+    },
+    {
+      "characterId": "dewi_lestari_kpk",
+      "variant": "portrait",
+      "left": 1176,
+      "top": 568,
+      "width": 110,
+      "height": 124,
+      "reviewed": true
+    },
+    {
+      "characterId": "idris_maulana",
+      "variant": "portrait",
+      "left": 1298,
+      "top": 568,
+      "width": 110,
+      "height": 124,
+      "reviewed": true
+    },
+    {
+      "characterId": "andika_permana",
+      "variant": "portrait",
+      "left": 1420,
+      "top": 568,
+      "width": 105,
+      "height": 124,
+      "reviewed": true
+    },
+    {
+      "characterId": "npc_petani",
+      "variant": "portrait",
+      "left": 17,
+      "top": 830,
+      "width": 101,
+      "height": 136,
+      "reviewed": true
+    },
+    {
+      "characterId": "npc_pelajar",
+      "variant": "portrait",
+      "left": 129,
+      "top": 830,
+      "width": 82,
+      "height": 136,
+      "reviewed": true
+    },
+    {
+      "characterId": "npc_pekerja_industri",
+      "variant": "portrait",
+      "left": 222,
+      "top": 830,
+      "width": 83,
+      "height": 136,
+      "reviewed": true
+    },
+    {
+      "characterId": "npc_pelaku_umkm",
+      "variant": "portrait",
+      "left": 315,
+      "top": 830,
+      "width": 84,
+      "height": 136,
+      "reviewed": true
+    },
+    {
+      "characterId": "npc_nelayan",
+      "variant": "portrait",
+      "left": 409,
+      "top": 830,
+      "width": 82,
+      "height": 136,
+      "reviewed": true
+    },
+    {
+      "characterId": "npc_tokoh_daerah",
+      "variant": "portrait",
+      "left": 502,
+      "top": 830,
+      "width": 83,
+      "height": 136,
+      "reviewed": true
+    },
+    {
+      "characterId": "npc_aktivis_mahasiswa",
+      "variant": "portrait",
+      "left": 596,
+      "top": 830,
+      "width": 81,
+      "height": 136,
+      "reviewed": true
+    },
+    {
+      "characterId": "npc_demonstran",
+      "variant": "portrait",
+      "left": 688,
+      "top": 830,
+      "width": 82,
+      "height": 136,
+      "reviewed": true
+    },
+    {
+      "characterId": "npc_kru_media",
+      "variant": "portrait",
+      "left": 781,
+      "top": 830,
+      "width": 81,
+      "height": 136,
+      "reviewed": true
+    },
+    {
+      "characterId": "npc_aparatur_daerah",
+      "variant": "portrait",
+      "left": 873,
+      "top": 830,
+      "width": 82,
+      "height": 136,
+      "reviewed": true
+    },
+    {
+      "characterId": "bima_aditya_pratama",
+      "variant": "neutral",
+      "left": 992,
+      "top": 822,
+      "width": 122,
+      "height": 73,
+      "reviewed": true
+    },
+    {
+      "characterId": "bima_aditya_pratama",
+      "variant": "disagree",
+      "left": 992,
+      "top": 919,
+      "width": 122,
+      "height": 72,
+      "reviewed": true
+    },
+    {
+      "characterId": "bima_aditya_pratama",
+      "variant": "serious",
+      "left": 1128,
+      "top": 822,
+      "width": 118,
+      "height": 73,
+      "reviewed": true
+    },
+    {
+      "characterId": "bima_aditya_pratama",
+      "variant": "angry",
+      "left": 1128,
+      "top": 919,
+      "width": 118,
+      "height": 72,
+      "reviewed": true
+    },
+    {
+      "characterId": "bima_aditya_pratama",
+      "variant": "thinking",
+      "left": 1261,
+      "top": 822,
+      "width": 119,
+      "height": 73,
+      "reviewed": true
+    },
+    {
+      "characterId": "bima_aditya_pratama",
+      "variant": "disappointed",
+      "left": 1261,
+      "top": 919,
+      "width": 119,
+      "height": 72,
+      "reviewed": true
+    },
+    {
+      "characterId": "bima_aditya_pratama",
+      "variant": "agree",
+      "left": 1394,
+      "top": 822,
+      "width": 118,
+      "height": 73,
+      "reviewed": true
+    },
+    {
+      "characterId": "bima_aditya_pratama",
+      "variant": "optimistic",
+      "left": 1394,
+      "top": 919,
+      "width": 118,
+      "height": 72,
+      "reviewed": true
+    }
+  ]
 }

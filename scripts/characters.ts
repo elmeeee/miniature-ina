@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import sharp from 'sharp';
 import { characters } from '@republik/game-data';
+import sheetIdentities from '../assets/source/sheet-identities.json';
 
 const source = 'assets/source/characters-sheet.png';
 const output = 'assets/characters';
@@ -39,10 +40,15 @@ async function inspect(data: Buffer, file: string): Promise<Finding & { pixelHas
   return { file, transparent, hasOpaquePixels, width: info.width, height: info.height, pixelHash: hash(pixels) };
 }
 
+const sourceCategories: Record<string, string> = sheetIdentities;
+const knownIdentity = (id: string) => Object.hasOwn(characters, id) || Object.hasOwn(sourceCategories, id);
+
 function pathFor(crop: Crop) {
-  if (!Object.hasOwn(characters, crop.characterId) || crop.reviewed !== true) throw new Error('Each crop needs a known character and identity/boundary review.');
+  if (!knownIdentity(crop.characterId) || crop.reviewed !== true) throw new Error('Each crop needs a known character and identity/boundary review.');
   if (crop.variant !== 'portrait' && !expressions.includes(crop.variant)) throw new Error('Unknown variant: ' + crop.variant);
-  const category = categories[characters[crop.characterId].role] ?? 'politicians';
+  const category = Object.hasOwn(sourceCategories, crop.characterId)
+    ? sourceCategories[crop.characterId]
+    : categories[characters[crop.characterId].role] ?? 'politicians';
   return category + '/' + crop.characterId + '/' + (crop.variant === 'portrait' ? 'portrait' : 'expressions/' + crop.variant) + '.png';
 }
 
@@ -107,12 +113,12 @@ async function main() {
     warnings.push('Source SHA-256: ' + hash(sheet) + ' (pixel SHA-256: ' + pixelHash + ')');
   }
   for (const id of Object.keys(manifest)) {
-    if (!Object.hasOwn(characters, id)) throw new Error('Unknown manifest character: ' + id);
+    if (!knownIdentity(id)) throw new Error('Unknown manifest character: ' + id);
   }
-  for (const id of Object.keys(characters)) {
+  for (const id of new Set([...Object.keys(characters), ...Object.keys(manifest)])) {
     const entry = manifest[id];
     if (!entry?.portrait) warnings.push(id + ': portrait missing (uses initials).');
-    if (characters[id].role === 'president') {
+    if (characters[id]?.role === 'president') {
       const missing = expressions.filter(variant => !entry?.expressions?.[variant]);
       if (missing.length) warnings.push(id + ': expressions missing (' + missing.join(', ') + ').');
     }

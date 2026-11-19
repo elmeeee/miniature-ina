@@ -1,3 +1,5 @@
 # Character artwork
 
-The extraction script creates category and character folders when reviewed PNG crops are available. The manifest currently has no approved portraits. The app uses initials when a portrait is missing and uses the base portrait when an expression is unavailable.
+This directory contains the reviewed crops from the original character sheet. The manifest links Bima Aditya Pratama and Anindita Prameswari to the playable roster and records the remaining sheet portraits under their printed identities or role labels. Eight presidential expressions are available. Missing portraits use initials and missing expressions use the base portrait.
+
+See the [extraction report](../../docs/production/character-extraction.md) for regeneration and identity notes.

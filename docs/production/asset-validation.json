@@ -6,14 +6,312 @@
       "hasOpaquePixels": true,
       "width": 1536,
       "height": 1024
+    },
+    {
+      "file": "presidents/bima_aditya_pratama/expressions/neutral.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 122,
+      "height": 73
+    },
+    {
+      "file": "presidents/bima_aditya_pratama/expressions/disagree.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 122,
+      "height": 72
+    },
+    {
+      "file": "presidents/bima_aditya_pratama/expressions/serious.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 118,
+      "height": 73
+    },
+    {
+      "file": "presidents/bima_aditya_pratama/expressions/angry.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 118,
+      "height": 72
+    },
+    {
+      "file": "presidents/bima_aditya_pratama/expressions/thinking.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 119,
+      "height": 73
+    },
+    {
+      "file": "presidents/bima_aditya_pratama/expressions/disappointed.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 119,
+      "height": 72
+    },
+    {
+      "file": "presidents/bima_aditya_pratama/expressions/agree.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 118,
+      "height": 73
+    },
+    {
+      "file": "presidents/bima_aditya_pratama/expressions/optimistic.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 118,
+      "height": 72
+    },
+    {
+      "file": "presidents/bima_aditya_pratama/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 204,
+      "height": 174
+    },
+    {
+      "file": "ministers/anindita_prameswari/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 132,
+      "height": 140
+    },
+    {
+      "file": "presidents/laras_prameswari/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 231,
+      "height": 173
+    },
+    {
+      "file": "ministers/fajar_wiratama/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 126,
+      "height": 140
+    },
+    {
+      "file": "ministers/rudi_hartono/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 126,
+      "height": 140
+    },
+    {
+      "file": "ministers/sari_hidayati/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 126,
+      "height": 140
+    },
+    {
+      "file": "ministers/damar_suryana/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 126,
+      "height": 146
+    },
+    {
+      "file": "ministers/ibrahim_santosa/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 127,
+      "height": 140
+    },
+    {
+      "file": "ministers/maya_kusumadewi/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 126,
+      "height": 140
+    },
+    {
+      "file": "ministers/andi_wibowo/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 125,
+      "height": 140
+    },
+    {
+      "file": "ministers/giri_mahendra/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 126,
+      "height": 140
+    },
+    {
+      "file": "ministers/ratri_wulandari/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 126,
+      "height": 140
+    },
+    {
+      "file": "ministers/dewangga_pratama/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 126,
+      "height": 140
+    },
+    {
+      "file": "politicians/ketua_partai_nusantara/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 116,
+      "height": 112
+    },
+    {
+      "file": "politicians/ketua_partai_persatuan_rakyat/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 113,
+      "height": 112
+    },
+    {
+      "file": "politicians/ketua_partai_kemajuan/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 113,
+      "height": 112
+    },
+    {
+      "file": "politicians/ketua_partai_keadilan_sosial/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 114,
+      "height": 112
+    },
+    {
+      "file": "politicians/ketua_partai_hijau_indonesia/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 115,
+      "height": 112
+    },
+    {
+      "file": "advisors/raka_mahendra/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 113,
+      "height": 124
+    },
+    {
+      "file": "civilians/nadia_kirana/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 115,
+      "height": 124
+    },
+    {
+      "file": "advisors/budi_santoso/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 108,
+      "height": 124
+    },
+    {
+      "file": "officials/hadi_wiranata/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 110,
+      "height": 124
+    },
+    {
+      "file": "officials/dewi_lestari_kpk/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 110,
+      "height": 124
+    },
+    {
+      "file": "civilians/idris_maulana/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 110,
+      "height": 124
+    },
+    {
+      "file": "politicians/andika_permana/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 105,
+      "height": 124
+    },
+    {
+      "file": "civilians/npc_petani/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 101,
+      "height": 136
+    },
+    {
+      "file": "civilians/npc_pelajar/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 82,
+      "height": 136
+    },
+    {
+      "file": "civilians/npc_pekerja_industri/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 83,
+      "height": 136
+    },
+    {
+      "file": "civilians/npc_pelaku_umkm/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 84,
+      "height": 136
+    },
+    {
+      "file": "civilians/npc_nelayan/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 82,
+      "height": 136
+    },
+    {
+      "file": "civilians/npc_tokoh_daerah/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 83,
+      "height": 136
+    },
+    {
+      "file": "civilians/npc_aktivis_mahasiswa/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 81,
+      "height": 136
+    },
+    {
+      "file": "civilians/npc_demonstran/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 82,
+      "height": 136
+    },
+    {
+      "file": "civilians/npc_kru_media/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 81,
+      "height": 136
+    },
+    {
+      "file": "civilians/npc_aparatur_daerah/portrait.png",
+      "transparent": false,
+      "hasOpaquePixels": true,
+      "width": 82,
+      "height": 136
     }
   ],
   "warnings": [
     "Source SHA-256: f46f41d6744183c1782a649fcac309d154e4fb1ab10207c520d39e0253a5264e (pixel SHA-256: 2391ecd051c7627838a8e78e3023268b74bb3ebc81c692dc46072426706af576)",
-    "bima_aditya_pratama: portrait missing (uses initials).",
-    "bima_aditya_pratama: expressions missing (neutral, serious, thinking, agree, disagree, angry, disappointed, optimistic).",
     "ratna_kusuma: portrait missing (uses initials).",
-    "anindita_prameswari: portrait missing (uses initials).",
     "surya_wirawan: portrait missing (uses initials).",
     "maya_santoso: portrait missing (uses initials).",
     "dimas_hartono: portrait missing (uses initials).",
