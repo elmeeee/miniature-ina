@@ -1,0 +1,10 @@
+{
+  "name": "@republik/game-data",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@republik/shared-types": "0.1.0"
+  }
+}

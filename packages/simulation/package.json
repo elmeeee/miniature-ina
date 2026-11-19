@@ -1,0 +1,11 @@
+{
+  "name": "@republik/simulation",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@republik/game-data": "0.1.0",
+    "@republik/shared-types": "0.1.0"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@republik/mobile",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/ios": "^8.6.2",
+    "@republik/game-data": "0.1.0",
+    "@republik/shared-types": "0.1.0",
+    "@republik/simulation": "0.1.0",
+    "@republik/ui": "0.1.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zustand": "^5.1.0"
+  }
+}
