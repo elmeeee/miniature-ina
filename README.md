@@ -1,13 +1,13 @@
 # REPUBLIK — Di Balik Istana
 
-A fictional Indonesian political simulation and interactive drama. The first playable workflow is cabinet management.
+A fictional Indonesian political simulation and interactive drama. Play an offline 260-week presidency with cabinet management, fiscal policy, parliament, branching decisions, and an election.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Use Node.js 24 (see `.node-version`). In **Kabinet**, fill an office, review a candidate and confirm the decision. **Riwayat** shows earlier appointments, and **Politik** and **Berita** show the political effects. Progress saves locally after each accepted decision.
+Use Node.js 24 (see `.node-version`). In **Kabinet**, fill an office, review a candidate and confirm the decision. **Riwayat** shows earlier appointments, and **Politik** and **Berita** show the political effects. Advance the calendar in **Istana**, propose a budget in **Negara**, and negotiate coalition backing or legislation in **Politik**. Progress autosaves after each decision, and Istana includes three manual save slots.
 
 ```sh
 npm run lint
@@ -21,3 +21,4 @@ After syncing, open `apps/mobile/android` in Android Studio with JDK 21 and Andr
 
 - [Architecture and simulation rules](docs/architecture/overview.md)
 - [Character extraction report](docs/production/character-extraction.md)
+- [Production milestones and remaining work](docs/production/PROGRESS.md)

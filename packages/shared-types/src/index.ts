@@ -1,3 +1,4 @@
+import type { CampaignState } from './campaign';
 export interface CharacterTraits {
   competence: number;
   integrity: number;
@@ -53,6 +54,7 @@ export interface PoliticalEvent {
 }
 
 export interface GameState {
+  campaign: CampaignState;
   turn: number;
   seed: number;
   positions: Record<string, GovernmentPosition>;
@@ -61,3 +63,5 @@ export interface GameState {
   appointments: CabinetAppointment[];
   events: PoliticalEvent[];
 }
+
+export * from './campaign';

@@ -83,3 +83,17 @@ textarea { resize: vertical; min-height: 85px; }
 .relation-track i { display: block; height: 100%; position: absolute; }
 .relation-track .negative { right: 50%; background: #d68d82; }
 .relation-track .positive { left: 50%; background: var(--gold); }
+
+input { width: 100%; min-width: 0; min-height: 44px; padding: 10px; color: var(--ivory); background: var(--navy); border: 1px solid var(--border); border-radius: 3px; font: inherit; }
+input:focus-visible, summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+button:disabled { opacity: .65; cursor: default; }
+summary { cursor: pointer; color: var(--gold); min-height: 40px; padding-block: 8px; }
+.campaign-data { margin: 8px 0 0; }
+.campaign-data > div { display: flex; justify-content: space-between; align-items: start; gap: 12px; border-top: 1px solid var(--border); padding-block: 7px; }
+.campaign-data small { display: block; }
+.campaign-data dd { color: var(--gold); text-align: right; margin: 0; }
+.budget-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 14px; margin-block: 10px; }
+.policy-row { border-top: 1px solid var(--border); padding-top: 12px; }
+.policy-row button, .policy-row .actions { margin-top: 10px; }
+.choice { gap: 4px; }
+.choice > button { text-align: left; }

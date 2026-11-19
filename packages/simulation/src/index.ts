@@ -1,4 +1,7 @@
-import { characters, initialGame, positions, presidentId } from '@republik/game-data';
+import { validateCampaign } from './campaign';
+export * from './campaign';
+export { forecast } from './fiscal';
+import { characters, initialCampaign, initialGame, positions, presidentId, termWeeks } from '@republik/game-data';
 import type { GameState } from '@republik/shared-types';
 
 export type CabinetAction =
@@ -28,6 +31,7 @@ function inRange(value: unknown, min: number, max: number): value is number {
 export function validateState(state: GameState): void {
   requireValid(isRecord(state) && inRange(state.turn, 1, Number.MAX_SAFE_INTEGER) && inRange(state.seed, 0, 0xffffffff), 'Giliran atau seed tidak valid.');
   requireValid(isRecord(state.characters) && isRecord(state.parties) && isRecord(state.positions) && Array.isArray(state.appointments) && Array.isArray(state.events), 'Struktur simpanan tidak valid.');
+  validateCampaign(state.campaign);
   const baseline = initialGame();
   requireValid(Object.keys(state.characters).length === Object.keys(characters).length && Object.keys(state.parties).length === Object.keys(baseline.parties).length, 'Daftar tokoh atau partai tidak lengkap.');
   for (const id of Object.keys(characters)) {
@@ -78,6 +82,7 @@ export function validateState(state: GameState): void {
 
 export function applyCabinetAction(state: GameState, action: CabinetAction): GameState {
   validateState(state);
+  requireValid(state.campaign.week <= termWeeks, 'Masa jabatan telah berakhir.');
   const reason = action.reason.trim();
   requireValid(reason, 'Masukkan alasan keputusan.');
   requireValid(Object.hasOwn(state.positions, action.positionId), 'Jabatan tidak ditemukan.');
@@ -134,6 +139,8 @@ export function applyCabinetAction(state: GameState, action: CabinetAction): Gam
     if (character.partyId) {
       const party = next.parties[character.partyId];
       party.coalition = clamp(party.coalition + delta, 0, 100);
+      const bloc = next.campaign.blocs[party.id];
+      bloc.trust = clamp(bloc.trust + delta, 0, 100);
     }
   }
   next.seed = (Math.imul(next.seed, 1664525) + 1013904223) >>> 0;
@@ -151,6 +158,7 @@ function adjustRelationship(state: GameState, from: string, to: string, delta: n
 
 export function realignCharacter(state: GameState, characterId: string, partyId: string, reason: string): GameState {
   validateState(state);
+  requireValid(state.campaign.week <= termWeeks, 'Masa jabatan telah berakhir.');
   requireValid(Object.hasOwn(state.characters, characterId) && Object.hasOwn(state.parties, partyId) && reason.trim(), 'Perpindahan partai tidak valid.');
   const previous = state.characters[characterId].partyId;
   requireValid(previous !== partyId && !Object.values(state.parties).some(party => party.leaderId === characterId), 'Tokoh tidak dapat berpindah partai.');
@@ -171,14 +179,17 @@ export function realignCharacter(state: GameState, characterId: string, partyId:
 
 export function saveGame(state: GameState): string {
   validateState(state);
-  return JSON.stringify({ version: 1, state });
+  return JSON.stringify({ version: 2, state });
 }
 
 export function loadGame(raw: string): GameState {
   const envelope = JSON.parse(raw);
   requireValid(isRecord(envelope) && isRecord(envelope.state), 'Simpanan tidak valid.');
   if (envelope.version === 0) envelope.state.events ??= [];
-  else requireValid(envelope.version === 1, 'Versi simpanan tidak didukung.');
+  if (envelope.version === 0 || envelope.version === 1) {
+    requireValid(inRange(envelope.state.seed, 0, 0xffffffff), 'Seed simpanan tidak valid.');
+    envelope.state.campaign = initialCampaign(envelope.state.seed);
+  } else requireValid(envelope.version === 2, 'Versi simpanan tidak didukung.');
   const state = envelope.state as unknown as GameState;
   validateState(state);
   return state;

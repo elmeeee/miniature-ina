@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { characters } from '@republik/game-data';
+import { characters, termWeeks } from '@republik/game-data';
 import { candidatePool, type CabinetAction } from '@republik/simulation';
 import type { Character, GameState, GovernmentPosition } from '@republik/shared-types';
 import { CharacterCard } from '@republik/ui';
@@ -17,21 +17,28 @@ export function CabinetRoster({ game, select }: { game: GameState; select: (id: 
       <div className="card-heading"><h3>{position.title}</h3><span className={holder ? 'status filled' : 'status'}>{holder ? 'Terisi' : 'Kosong'}</span></div>
       {holder ? <><CharacterCard character={holder} src={portraitUrl(holder.portraitAssetId)} /><MinisterPerformance character={holder} /></>
         : <p>Belum ada menteri yang menjabat.</p>}
-      <button className="outline" onClick={() => select(position.id)}>{holder ? 'Kelola jabatan' : 'Pilih kandidat'} <span aria-hidden="true">→</span></button>
+      {game.campaign.week <= termWeeks && <button className="outline" onClick={() => select(position.id)}>{holder ? 'Kelola jabatan' : 'Pilih kandidat'} <span aria-hidden="true">→</span></button>}
     </article>;
   })}</div>;
 }
 
 export function CabinetHistory({ game }: { game: GameState }) {
-  if (!game.appointments.length) return <p className="panel empty">Riwayat akan muncul setelah keputusan kabinet pertama.</p>;
-  return <ol className="history">{[...game.appointments].reverse().map(entry =>
+  if (!game.appointments.length && !game.campaign.ministerReviews.length) return <p className="panel empty">Riwayat akan muncul setelah keputusan kabinet pertama.</p>;
+  return <div className="stack">
+    {game.campaign.ministerReviews.length > 0 && <details className="panel">
+      <summary>Evaluasi kinerja triwulan</summary>
+      {[...game.campaign.ministerReviews].reverse().map(review =>
+        <p key={review.week + '-' + review.positionId}>Minggu {review.week} · {characters[review.holderId].fullName} · {review.delivery}/100</p>,
+      )}
+    </details>}
+    <ol className="history">{[...game.appointments].reverse().map(entry =>
     <li className="panel" key={entry.id}>
       <small>Giliran {entry.startTurn}{entry.endTurn ? '–' + entry.endTurn : ' · Masih menjabat'}</small>
       <h3>{characters[entry.characterId].fullName}</h3>
       <p>{game.positions[entry.positionId].title} · {entry.appointmentReason}</p>
       {entry.dismissalReason && <p>Akhir masa jabatan · {entry.dismissalReason}</p>}
     </li>,
-  )}</ol>;
+  )}</ol></div>;
 }
 
 export function CandidateSelector({ candidates, value, onChange }: { candidates: Character[]; value: string; onChange: (id: string) => void }) {

@@ -1,3 +1,5 @@
+import { initialCampaign } from './campaign';
+export * from './campaign';
 import type { Character, GameState } from '@republik/shared-types';
 
 const bios = [
@@ -47,6 +49,7 @@ export const positions = [
 export function initialGame(seed = 20261119): GameState {
   return {
     turn: 1, seed: seed >>> 0,
+    campaign: initialCampaign(seed),
     positions: Object.fromEntries(positions.map(([id, title, ministryId]) => [id, { id, title, ministryId }])),
     characters: Object.fromEntries(Object.values(characters).map(
       ({ id, partyId, relationships }) => [id, { partyId, relationships: { ...relationships } }],
@@ -59,3 +62,5 @@ export function initialGame(seed = 20261119): GameState {
     events: [],
   };
 }
+
+export * from './stories';

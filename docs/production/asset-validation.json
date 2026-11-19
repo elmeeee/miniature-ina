@@ -2,14 +2,14 @@
   "findings": [
     {
       "file": "assets/source/characters-sheet.png",
-      "transparent": true,
-      "hasOpaquePixels": false,
+      "transparent": false,
+      "hasOpaquePixels": true,
       "width": 1536,
       "height": 1024
     }
   ],
   "warnings": [
-    "Source SHA-256: 1be4c2b41097d73b1071c5be53a3e77eda6b209b8631c0b67cf6233d79f86036 (pixel SHA-256: a99466ecb2f7d66116b83f3c203f4f31f4e547a4bd8d54e43fdc819b13caea48)",
+    "Source SHA-256: f46f41d6744183c1782a649fcac309d154e4fb1ab10207c520d39e0253a5264e (pixel SHA-256: 2391ecd051c7627838a8e78e3023268b74bb3ebc81c692dc46072426706af576)",
     "bima_aditya_pratama: portrait missing (uses initials).",
     "bima_aditya_pratama: expressions missing (neutral, serious, thinking, agree, disagree, angry, disappointed, optimistic).",
     "ratna_kusuma: portrait missing (uses initials).",

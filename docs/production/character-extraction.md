@@ -1,6 +1,6 @@
 # Character extraction report
 
-The original `assets/source/characters-sheet.png` is present on `main`. Pixel validation found a 1536 × 1024 PNG with transparency and no fully opaque pixels in the decoded image. No crops have been approved. The manifest is empty, and all twelve characters use initials. Review the alpha channel, face boundaries and identities before approving any crops. The current extractor requires at least one fully opaque pixel in each crop. See the [validation report](asset-validation.json).
+The original `assets/source/characters-sheet.png` is present on `main`. Pixel validation found a 1536 × 1024 PNG with fully opaque pixels and no pixel transparency. No crops have been approved. The manifest is empty, and all twelve characters use initials. Review the background, face boundaries and identities before approving any crops. The current extractor requires at least one fully opaque pixel in each crop. See the [validation report](asset-validation.json).
 
 ## Review and extract
 

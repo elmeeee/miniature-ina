@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { applyCabinetAction, loadGame, saveGame, type CabinetAction } from '@republik/simulation';
+import { applyCabinetAction, applyPresidencyAction, loadGame, saveGame, type CabinetAction, type PresidencyAction } from '@republik/simulation';
 import { initialGame } from '@republik/game-data';
 import type { GameState } from '@republik/shared-types';
 
@@ -19,6 +19,9 @@ interface GameStore {
   game: GameState;
   recovery: string;
   dispatch: (action: CabinetAction) => void;
+  decide: (action: PresidencyAction) => void;
+  saveSlot: (slot: number) => void;
+  loadSlot: (slot: number) => void;
   exportSave: () => void;
   resetSave: () => void;
 }
@@ -33,6 +36,18 @@ export const useGame = create<GameStore>((set, get) => {
   return {
     ...restored,
     dispatch: action => commit(applyCabinetAction(get().game, action)),
+    decide: action => commit(applyPresidencyAction(get().game, action)),
+    saveSlot: slot => {
+      if (get().recovery) throw new Error('Simpanan aktif rusak.');
+      localStorage.setItem(storageKey + '.slot.' + slot, saveGame(get().game));
+    },
+    loadSlot: slot => {
+      const raw = localStorage.getItem(storageKey + '.slot.' + slot);
+      if (raw === null) throw new Error('Slot ini masih kosong.');
+      const game = loadGame(raw);
+      localStorage.setItem(storageKey, saveGame(game));
+      set({ game, recovery: '' });
+    },
     exportSave: () => {
       const raw = localStorage.getItem(storageKey) ?? saveGame(get().game);
       const url = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
@@ -43,8 +58,9 @@ export const useGame = create<GameStore>((set, get) => {
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     },
     resetSave: () => {
-      localStorage.removeItem(storageKey);
-      set({ game: initialGame(), recovery: '' });
+      const game = initialGame(crypto.getRandomValues(new Uint32Array(1))[0]);
+      localStorage.setItem(storageKey, saveGame(game));
+      set({ game, recovery: '' });
     },
   };
 });
