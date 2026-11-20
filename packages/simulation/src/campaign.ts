@@ -2,9 +2,9 @@ import { countElection, validElection } from './election';
 export { candidates, epilogues } from './election';
 import { chooseStory, offerStory, validStoryState } from './stories';
 export { availableStory, validStoryCatalog } from './stories';
-import { baselinePlan, caucuses, characters, emptyAccounts, initialCampaign, initialEconomy, parliamentSeats, termWeeks, weeksPerYear } from '@republik/game-data';
+import { baselinePlan, caucuses, characters, difficulties, emptyAccounts, initialCampaign, initialEconomy, parliamentSeats, termWeeks, weeksPerYear } from '@republik/game-data';
 import { revenueLines, spendingLines } from '@republik/shared-types';
-import type { Accounts, Bill, BudgetPlan, CampaignState, GameState, Vote } from '@republik/shared-types';
+import type { CashTracking, Development, Accounts, Bill, BudgetPlan, CampaignState, GameState, Vote } from '@republik/shared-types';
 import { accrue, balanceAccounts, clampMetric, forecast, updateEconomy, validPlan } from './fiscal';
 
 export type PresidencyAction =
@@ -42,13 +42,13 @@ export function ministryRequests(campaign: CampaignState): BudgetPlan['spending'
   };
 }
 
-function vote(campaign: CampaignState, support: (party: typeof caucuses[number]) => number): Vote {
+function vote(campaign: CampaignState, whipModifier: number, support: (party: typeof caucuses[number]) => number): Vote {
   const byParty: Vote['byParty'] = {};
   let yes = 0;
   for (const party of caucuses) {
     const bloc = campaign.blocs[party.id];
     const preference = support(party);
-    const whip = clampMetric(bloc.trust + preference + (bloc.member ? 22 : -6));
+    const whip = clampMetric(bloc.trust + preference + whipModifier + (bloc.member ? 22 : -6));
     const probability = (whip * party.discipline + clampMetric(45 + preference) * (100 - party.discipline)) / 10000;
     let tally = 0;
     for (let member = 0; member < party.seats; member++) if (random(campaign) < probability) tally++;
@@ -68,20 +68,34 @@ function advance(state: GameState) {
   const c = state.campaign;
   const week = c.week;
   const plan = c.budget.execution;
-  const shock = week % 4 === 0 ? 2 * (random(c) - 0.5) : 0;
+  if (week % 13 === 1) {
+    const planAtOpening = forecast(c.economy, plan);
+    c.quarterTracking = { plannedSpending: planAtOpening.totalSpending / 4, plannedRevenue: planAtOpening.totalRevenue / 4, borrowing: 0, redemption: 0 };
+  }
+  const shock = week % 4 === 0 ? 2 * difficulties[state.mandate.difficulty].shock * (random(c) - 0.5) : 0;
   const planBeforeLag = c.delayedTax.find(entry => entry.week === week);
   if (planBeforeLag) {
+    const change = planBeforeLag.value - c.effectiveTax;
+    if (change) recordDevelopment(c, { week, kind: 'effect', field: 'tax', change });
     c.effectiveTax = planBeforeLag.value;
     c.delayedTax = c.delayedTax.filter(entry => entry.week > week);
   }
   c.economy = updateEconomy(c.economy, plan, c.effectiveTax, shock);
   for (const effect of c.delayed.filter(item => item.week <= week)) {
-    c.economy[effect.field] = clampMetric(c.economy[effect.field] + effect.amount);
+    const before = c.economy[effect.field];
+    c.economy[effect.field] = clampMetric(before + effect.amount);
+    const change = c.economy[effect.field] - before;
+    if (change) recordDevelopment(c, { week, kind: 'effect', field: effect.field, change });
   }
   c.delayed = c.delayed.filter(item => item.week > week);
   const nextAccounts = accrue(c.budget.accrued, forecast(c.economy, plan), delivery(state));
   const weeklyBalance = nextAccounts.balance - c.budget.accrued.balance;
-  c.economy.debt = Math.max(0, c.economy.debt - weeklyBalance);
+  const debtBefore = c.economy.debt;
+  c.economy.debt = Math.max(0, debtBefore - weeklyBalance);
+  if (c.quarterTracking) {
+    c.quarterTracking.borrowing += Math.max(0, c.economy.debt - debtBefore);
+    c.quarterTracking.redemption += Math.max(0, debtBefore - c.economy.debt);
+  }
   c.budget.accrued = nextAccounts;
   if (week % 4 === 0) {
     const { gdp, inflation, unemployment } = c.economy;
@@ -89,7 +103,9 @@ function advance(state: GameState) {
     c.legitimacy = clampMetric(c.legitimacy + (c.economy.growth - inflation - 1) / 6);
   }
   if (week % 13 === 0) {
-    c.quarters.push({ week, accounts: nextAccounts, debt: c.economy.debt });
+    c.quarters.push({ week, accounts: nextAccounts, debt: c.economy.debt,
+      ...(c.quarterTracking && { tracking: c.quarterTracking }) });
+    delete c.quarterTracking;
     c.delayed.push(
       { week: week + 26, field: 'humanCapital', amount: (plan.spending.education - 360) / 260 },
       { week: week + 13, field: 'infrastructure', amount: (plan.spending.infrastructure - 230) / 190 },
@@ -102,7 +118,10 @@ function advance(state: GameState) {
     }
     for (const region of c.regions) {
       const gap = Math.max(0, 65 - region.development);
+      const before = region.development;
       region.development = clampMetric(region.development + (plan.spending.transfers - 430) * (1 + gap / 40) / 400);
+      const change = region.development - before;
+      if (Math.abs(change) >= 0.1) recordDevelopment(c, { week, kind: 'region', regionId: region.id, change });
       region.support = clampMetric(region.support + (region.development - 50) / 40 + (c.legitimacy - 50) / 30);
     }
   }
@@ -112,6 +131,10 @@ function advance(state: GameState) {
     c.budgetArchive.push(c.budget);
     c.budget = { year: week / weeksPerYear + 1, status: 'open', plan: structuredClone(plan), execution: plan, accrued: emptyAccounts() };
   }
+}
+
+export function recordDevelopment(c: CampaignState, dispatch: Development) {
+  (c.developments ??= []).push(dispatch);
 }
 
 export function applyPresidencyAction(state: GameState, action: PresidencyAction): GameState {
@@ -130,7 +153,7 @@ export function applyPresidencyAction(state: GameState, action: PresidencyAction
         advance(next);
         if (c.week <= termWeeks) offerStory(c, random(c));
         else c.election = countElection(c, () => random(c));
-        if (c.pendingEvent || c.election || c.budget.year !== year) break;
+        if (c.pendingEvent || c.election || c.budget.year !== year || (c.week - 1) % 13 === 0) break;
       }
       break;
     case 'choose-story':
@@ -150,10 +173,11 @@ export function applyPresidencyAction(state: GameState, action: PresidencyAction
       assert(b.lastVoteWeek !== c.week, 'DPR hanya dapat memutuskan APBN sekali per minggu.');
       b.lastVoteWeek = c.week;
       const forecast = forecastPlan(c);
-      b.vote = vote(c, party => {
+      b.vote = vote(c, difficulties[next.mandate.difficulty].whip, party => {
         const demand = baselinePlan.spending[party.preference];
         return clampMetric((b.plan.spending[party.preference] / demand - 1) * 30, -30, 20) - forecast.financing / c.economy.gdp * 370;
       });
+      recordDevelopment(c, { week: c.week, kind: 'budget', approved: b.vote.approved, yes: b.vote.yes });
       b.status = b.vote.approved ? 'approved' : 'rejected';
       if (b.vote.approved) {
         b.execution = structuredClone(b.plan);
@@ -177,6 +201,7 @@ export function applyPresidencyAction(state: GameState, action: PresidencyAction
         delete bloc.deal;
       }
       bloc.member = action.join;
+      recordDevelopment(c, { week: c.week, kind: 'coalition', partyId: party.id, joined: action.join });
       break;
     }
     case 'submit-bill': {
@@ -198,7 +223,7 @@ export function applyPresidencyAction(state: GameState, action: PresidencyAction
         bill.compromise = true;
         break;
       }
-      bill.vote = vote(c, party => (party.preference === bill.focus ? 24 : -5) + (bill.compromise ? 10 : 0));
+      bill.vote = vote(c, difficulties[next.mandate.difficulty].whip, party => (party.preference === bill.focus ? 24 : -5) + (bill.compromise ? 10 : 0));
       bill.stage = bill.vote.approved ? 'approved' : 'rejected';
       if (bill.vote.approved && (bill.focus === 'education' || bill.focus === 'infrastructure')) {
         c.delayed.push({ week: c.week + 26, field: bill.focus === 'education' ? 'humanCapital' : 'infrastructure', amount: bill.compromise ? 1 : 2 });
@@ -240,6 +265,10 @@ function validBudget(b: CampaignState['budget'], year: number, throughWeek: numb
       b.lastVoteWeek !== undefined && !!b.vote && validVote(b.vote) && b.vote.approved === (b.status === 'approved'));
 }
 
+function validTracking(tracking: CashTracking) {
+  return !!tracking && [tracking.plannedSpending, tracking.plannedRevenue, tracking.borrowing, tracking.redemption].every(n => range(n, 0, Infinity));
+}
+
 export function validateCampaign(c: CampaignState) {
   assert(c && validStoryState(c) && integer(c.week, 1, termWeeks + 1) && integer(c.seed, 0, 0xffffffff) && range(c.legitimacy, 0, 100));
   assert(c.economy && (Object.keys(initialEconomy) as (keyof typeof initialEconomy)[]).every(key =>
@@ -268,6 +297,23 @@ export function validateCampaign(c: CampaignState) {
       && range(m.inflation, -3, 30) && range(m.unemployment, 1, 35)));
   assert(Array.isArray(c.quarters) && c.quarters.length === Math.floor((c.week - 1) / 13)
     && c.quarters.every((q, i) => q && q.week === (i + 1) * 13 && validAccounts(q.accounts) && range(q.debt, 0, Infinity)));
+  assert(c.quarterTracking === undefined || ((c.week - 1) % 13 !== 0 && validTracking(c.quarterTracking)));
+  assert(c.quarters.every((q, index) => {
+    if (!q.tracking) return q.tracking === undefined;
+    const openingDebt = index ? c.quarters[index - 1].debt : initialEconomy.debt;
+    return validTracking(q.tracking) && Math.abs(q.debt - openingDebt - q.tracking.borrowing + q.tracking.redemption) < 0.000001;
+  }));
+  assert(c.developments === undefined || (Array.isArray(c.developments) && c.developments.every((item, index) => {
+    if (!item || !integer(item.week, c.developments?.[index - 1]?.week ?? 1, Math.min(c.week, termWeeks))) return false;
+    switch (item.kind) {
+      case 'budget': return integer(item.yes, 0, parliamentSeats) && item.approved === (item.yes > parliamentSeats / 2);
+      case 'coalition': return Object.hasOwn(c.blocs, item.partyId) && typeof item.joined === 'boolean';
+      case 'effect': return ['humanCapital','infrastructure','tax'].includes(item.field) && range(item.change, -70, 70);
+      case 'region': return c.regions.some(region => region.id === item.regionId) && range(item.change, -100, 100);
+      case 'conflict': return Object.hasOwn(characters, item.characterId) && typeof item.positionId === 'string' && ['heard','resigned'].includes(item.choice);
+      default: return false;
+    }
+  })));
   assert(Array.isArray(c.briefings) && c.briefings.length === c.week - 1
     && c.briefings.every((b, i) => b && b.week === i + 1 && typeof b.message === 'string'));
   assert(validElection(c));

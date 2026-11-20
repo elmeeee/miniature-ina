@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { applyCabinetAction, applyPresidencyAction, loadGame, saveGame, startPresidency, transitionOpening, type OpeningAction, type CabinetAction, type PresidencyAction } from '@republik/simulation';
+import { applyCabinetAction, applyPresidencyAction, loadGame, saveGame, startPresidency, resolveCabinetConflict, transitionOpening, type OpeningAction, type CabinetAction, type PresidencyAction } from '@republik/simulation';
 import { initialGame } from '@republik/game-data';
-import type { GameState, PresidentIdentity } from '@republik/shared-types';
+import type { GameState, Mandate, PresidentIdentity } from '@republik/shared-types';
 
 const storageKey = 'republik.game';
 function restore() {
@@ -26,7 +26,8 @@ interface GameStore {
   creating: boolean;
   openCreator: () => void;
   closeCreator: () => void;
-  start: (profile: PresidentIdentity) => void;
+  cabinetResponse: (positionId: string, choice: 'heard' | 'resigned') => void;
+  start: (profile: PresidentIdentity, mandate: Mandate) => void;
   openingAction: (action: OpeningAction) => void;
 }
 
@@ -64,8 +65,9 @@ export const useGame = create<GameStore>((set, get) => {
     openCreator: () => set({ creating: true }),
     closeCreator: () => set({ creating: localStorage.getItem(storageKey) === null }),
     openingAction: action => commit(transitionOpening(get().game, action)),
-    start: profile => {
-      const game = startPresidency(crypto.getRandomValues(new Uint32Array(1))[0], profile);
+    cabinetResponse: (positionId, choice) => commit(resolveCabinetConflict(get().game, positionId, choice)),
+    start: (profile, mandate) => {
+      const game = startPresidency(crypto.getRandomValues(new Uint32Array(1))[0], profile, mandate);
       localStorage.setItem(storageKey, saveGame(game));
       set({ game, recovery: '', creating: false });
     },

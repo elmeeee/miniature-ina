@@ -1,4 +1,4 @@
-import type { PresidentIdentity, OpeningState } from './president';
+import type { PresidentIdentity, OpeningState, Mandate } from './president';
 export * from './president';
 import type { CampaignState } from './campaign';
 export interface CharacterTraits {
@@ -49,6 +49,7 @@ export interface Party {
 }
 
 export interface PoliticalEvent {
+  week?: number;
   id: string;
   turn: number;
   title: string;
@@ -57,6 +58,7 @@ export interface PoliticalEvent {
 
 export interface GameState {
   president: PresidentIdentity;
+  mandate: Mandate;
   opening?: OpeningState;
   campaign: CampaignState;
   turn: number;

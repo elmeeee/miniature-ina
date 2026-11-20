@@ -1,10 +1,12 @@
 import { applyOpeningAction, validOpening, type OpeningAction } from './opening';
 export { openingDialogue, openingHeadline, openingPolicies, coalitionReplies, type OpeningAction } from './opening';
-import { validateCampaign } from './campaign';
+import { recordDevelopment, validateCampaign } from './campaign';
 export * from './campaign';
 export { forecast } from './fiscal';
-import { characters, defaultPresident, initialCampaign, initialGame, isPresident, positions, presidentId, termWeeks } from '@republik/game-data';
-import type { GameState, PresidentIdentity } from '@republik/shared-types';
+export * from './quarterly';
+export * from './news';
+import { backgrounds, characters, defaultMandate, difficulties, validMandate, defaultPresident, initialCampaign, initialGame, isPresident, positions, presidentId, termWeeks } from '@republik/game-data';
+import type { GameState, Mandate, PresidentIdentity } from '@republik/shared-types';
 
 export type CabinetAction =
   | { type: 'appoint' | 'replace'; positionId: string; characterId: string; reason: string }
@@ -34,7 +36,7 @@ export function validateState(state: GameState): void {
   requireValid(isRecord(state) && inRange(state.turn, 1, Number.MAX_SAFE_INTEGER) && inRange(state.seed, 0, 0xffffffff), 'Giliran atau seed tidak valid.');
   requireValid(isRecord(state.characters) && isRecord(state.parties) && isRecord(state.positions) && Array.isArray(state.appointments) && Array.isArray(state.events), 'Struktur simpanan tidak valid.');
   validateCampaign(state.campaign);
-  requireValid(isPresident(state.president) && validOpening(state.opening, state), 'Profil atau adegan Presiden tidak valid.');
+  requireValid(isPresident(state.president) && validMandate(state.mandate) && validOpening(state.opening, state), 'Profil atau adegan Presiden tidak valid.');
   const baseline = initialGame();
   requireValid(Object.keys(state.characters).length === Object.keys(characters).length && Object.keys(state.parties).length === Object.keys(baseline.parties).length, 'Daftar tokoh atau partai tidak lengkap.');
   for (const id of Object.keys(characters)) {
@@ -77,7 +79,7 @@ export function validateState(state: GameState): void {
   requireValid(Object.values(state.positions).every(position => position.currentHolderId === active.get(position.id)), 'Riwayat dan pemegang jabatan tidak cocok.');
   const eventIds = new Set<string>();
   for (const event of state.events) {
-    requireValid(isRecord(event) && typeof event.id === 'string' && !eventIds.has(event.id) && inRange(event.turn, 1, state.turn) && typeof event.title === 'string'
+    requireValid(isRecord(event) && typeof event.id === 'string' && !eventIds.has(event.id) && inRange(event.turn, 1, state.turn) && typeof event.title === 'string' && (event.week === undefined || inRange(event.week, 1, state.campaign.week))
       && ['support', 'scrutiny', 'realignment'].includes(event.kind), 'Peristiwa politik tidak valid.');
     eventIds.add(event.id);
   }
@@ -148,8 +150,8 @@ export function applyCabinetAction(state: GameState, action: CabinetAction): Gam
   }
   next.seed = (Math.imul(next.seed, 1664525) + 1013904223) >>> 0;
   const scrutiny = next.seed / 0x100000000 < 0.4;
-  next.events.push({ id: 'cabinet-' + next.turn, turn: next.turn, kind: scrutiny ? 'scrutiny' : 'support',
-    title: scrutiny ? 'DPR meminta penjelasan atas keputusan kabinet' : 'Koalisi menanggapi keputusan kabinet' });
+  next.events.push({ id: 'cabinet-' + next.turn, turn: next.turn, kind: scrutiny ? 'scrutiny' : 'support', week: next.campaign.week,
+    title: action.type === 'resign' ? characters[incumbent!].fullName + ' mengundurkan diri dari kabinet' : scrutiny ? 'DPR meminta penjelasan atas keputusan kabinet' : 'Koalisi menanggapi keputusan kabinet' });
   validateState(next);
   return next;
 }
@@ -175,14 +177,14 @@ export function realignCharacter(state: GameState, characterId: string, partyId:
   }
   adjustRelationship(next, next.parties[partyId].leaderId, characterId, 5);
   next.parties[partyId].coalition = clamp(next.parties[partyId].coalition + 2, 0, 100);
-  next.events.push({ id: 'realignment-' + next.turn, turn: next.turn, kind: 'realignment', title: reason.trim() });
+  next.events.push({ id: 'realignment-' + next.turn, turn: next.turn, kind: 'realignment', week: next.campaign.week, title: reason.trim() });
   validateState(next);
   return next;
 }
 
 export function saveGame(state: GameState): string {
   validateState(state);
-  return JSON.stringify({ version: 3, state });
+  return JSON.stringify({ version: 4, state });
 }
 
 export function loadGame(raw: string): GameState {
@@ -192,16 +194,23 @@ export function loadGame(raw: string): GameState {
   if (envelope.version === 0 || envelope.version === 1) {
     requireValid(inRange(envelope.state.seed, 0, 0xffffffff), 'Seed simpanan tidak valid.');
     envelope.state.campaign = initialCampaign(envelope.state.seed);
-  } else requireValid(envelope.version === 2 || envelope.version === 3, 'Versi simpanan tidak didukung.');
-  if (envelope.version !== 3) envelope.state.president = { ...defaultPresident };
+  } else requireValid(envelope.version === 2 || envelope.version === 3 || envelope.version === 4, 'Versi simpanan tidak didukung.');
+  if (envelope.version === 0 || envelope.version === 1 || envelope.version === 2) envelope.state.president = { ...defaultPresident };
+  if (envelope.version !== 4) envelope.state.mandate = defaultMandate();
   const state = envelope.state as unknown as GameState;
   validateState(state);
   return state;
 }
 
-export function startPresidency(seed: number, president: PresidentIdentity): GameState {
+export function startPresidency(seed: number, president: PresidentIdentity, mandate: Mandate = defaultMandate()): GameState {
   requireValid(isPresident(president), 'Profil Presiden tidak valid.');
-  let state: GameState = { ...initialGame(seed), president: { ...president } };
+  requireValid(validMandate(mandate), 'Pilih tepat tiga janji kampanye yang berbeda.');
+  let state: GameState = { ...initialGame(seed), president: { ...president }, mandate: structuredClone(mandate) };
+  const background = backgrounds[mandate.background];
+  const difficulty = difficulties[mandate.difficulty];
+  state.campaign.legitimacy += background.legitimacy + difficulty.legitimacy;
+  state.campaign.economy.confidence += background.confidence;
+  for (const [party, delta] of Object.entries(background.ties)) state.campaign.blocs[party].trust += delta;
   for (const [positionId, characterId] of [
     ['finance', 'anindita_prameswari'], ['foreign', 'surya_wirawan'], ['health', 'maya_santoso'],
   ]) {
@@ -213,6 +222,37 @@ export function startPresidency(seed: number, president: PresidentIdentity): Gam
 export function transitionOpening(state: GameState, action: OpeningAction): GameState {
   validateState(state);
   const next = applyOpeningAction(state, action);
+  validateState(next);
+  return next;
+}
+
+export function cabinetConflict(game: GameState, positionId: string) {
+  if (game.campaign.week < 5 || game.campaign.week > termWeeks || !Object.hasOwn(game.positions, positionId)) return undefined;
+  const id = game.positions[positionId].currentHolderId;
+  if (!id) return undefined;
+  if (game.campaign.developments?.some(entry => entry.kind === 'conflict' && entry.positionId === positionId
+    && game.campaign.week - entry.week < 13)) return undefined;
+  const relationship = game.characters[id].relationships[presidentId] ?? 0;
+  const lastReview = game.campaign.ministerReviews.filter(r => r.positionId === positionId && r.holderId === id).at(-1);
+  const funding = positionId === 'health' ? game.campaign.budget.execution.spending.health : undefined;
+  if (relationship > -12 && (lastReview?.delivery ?? 100) >= 74 && (funding ?? 230) >= 180) return undefined;
+  return { id, relationship, issue: funding !== undefined && funding < 180
+    ? 'Pagu kesehatan membatasi layanan. Saya meminta pembahasan sebelum target diperketat.'
+    : 'Kami berbeda pandangan soal pelaksanaan agenda. Saya perlu kejelasan mandat sebelum melanjutkan.' };
+}
+
+export function resolveCabinetConflict(state: GameState, positionId: string, choice: 'heard' | 'resigned') {
+  validateState(state);
+  const conflict = cabinetConflict(state, positionId);
+  requireValid(conflict && (choice === 'heard' || choice === 'resigned'), 'Tidak ada konflik kabinet aktif.');
+  const next = choice === 'resigned'
+    ? applyCabinetAction(state, { type: 'resign', positionId, reason: 'Pengunduran diri setelah pembahasan konflik kabinet' })
+    : structuredClone(state);
+  if (choice === 'heard') {
+    adjustRelationship(next, conflict.id, presidentId, 7);
+    adjustRelationship(next, presidentId, conflict.id, 4);
+  }
+  recordDevelopment(next.campaign, { week: next.campaign.week, kind: 'conflict', characterId: conflict.id, positionId, choice });
   validateState(next);
   return next;
 }

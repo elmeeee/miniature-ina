@@ -39,7 +39,8 @@ export function WeeklyBriefing({ game }: { game: GameState }) {
     <article className="panel stack">
       <div><h2>{c.election ? 'Masa Jabatan Selesai' : 'Briefing Mingguan'}</h2>
         <p>Tahun {c.budget.year} · {phases[c.budget.year - 1]} · Minggu {Math.min(c.week, termWeeks)}/{termWeeks}</p>
-        <p>Legitimasi {number.format(c.legitimacy)}/100</p>
+        <p>Pertumbuhan {number.format(c.economy.growth)}% · Inflasi {number.format(c.economy.inflation)}% · Legitimasi {number.format(c.legitimacy)}/100</p>
+        {!c.election && c.delayed.length > 0 && <p>Dampak proyek terdekat dijadwalkan minggu {Math.min(...c.delayed.map(item => item.week))}.</p>}
         {c.briefings.length > 0 && <p>{c.briefings.at(-1)?.message}</p>}</div>
       {!c.election && !event && <div className="actions">
         <button className="primary" onClick={() => run({ type: 'week' })}>Selesaikan minggu {c.week}</button>

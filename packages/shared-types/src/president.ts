@@ -15,3 +15,8 @@ export type OpeningState =
     stage: 'results' | 'complete'; policy: OpeningPolicy; reply: CoalitionReply; adviserId: string;
     effects: { legitimacy: number; trust: number; relationship: number };
   };
+
+export type Background = 'military' | 'governor' | 'entrepreneur' | 'academic' | 'activist';
+export type Difficulty = 'relaxed' | 'standard' | 'demanding';
+export type PromiseId = 'food' | 'growth' | 'poverty' | 'education' | 'healthcare' | 'infrastructure' | 'jobs' | 'services' | 'regions' | 'debt' | 'investment' | 'reform';
+export type Mandate = { background: Background; difficulty: Difficulty; promises: PromiseId[] };

@@ -25,3 +25,4 @@ After syncing, open `apps/mobile/android` in Android Studio with JDK 21 and Andr
 
 - [Cinematic revamp audit](docs/production/REVAMP_AUDIT.md)
 - [Cinematic revamp progress](docs/production/REVAMP_PROGRESS.md)
+- [Benchmark gameplay, accounting and test notes](docs/production/BENCHMARK_PROGRESS.md)

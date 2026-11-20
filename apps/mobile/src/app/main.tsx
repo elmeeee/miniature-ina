@@ -4,7 +4,7 @@ import { termWeeks } from '@republik/game-data';
 import { CabinetHistory, CabinetRoster, ReshufflePanel } from '../screens/cabinet';
 import { PresidencyHistory } from '../screens/campaign';
 import { Inauguration, PresidentCreator, PresidentialOffice } from '../screens/office';
-import { openingHeadline } from '@republik/simulation';
+import { NewsDesk } from '../screens/news';
 import { sceneArt } from '../services/scenes';
 import './cinematic.css';
 import { NationalEconomy } from '../screens/economy';
@@ -43,7 +43,6 @@ function App() {
     {saveError && <p className="error standalone-error" role="alert">{saveError}</p>}
   </>;
 
-  const headline = openingHeadline(game);
   const cover = { Istana: sceneArt.office, Kabinet: sceneArt.cabinet, Negara: sceneArt.palace, Politik: sceneArt.parliament, Berita: sceneArt.press };
 
   return <>
@@ -71,9 +70,7 @@ function App() {
       {tab === 'Istana' && <PresidentialOffice key={game.president.name} game={game} navigate={setTab} />}
       {tab === 'Negara' && <NationalEconomy game={game} />}
       {tab === 'Politik' && <><Parliament game={game} /><Politics game={game} /></>}
-      {tab === 'Berita' && <>{headline && <article className="panel"><small>Siaran perdana</small><h2>{headline}</h2></article>}<PresidencyHistory game={game} />{game.events.length ? <ol className="history">{[...game.events].reverse().map(event => <li className="panel" key={event.id}>
-        <small>Giliran {event.turn}</small><h3>{event.title}</h3>
-      </li>)}</ol> : <p className="panel empty">Belum ada perkembangan politik yang tercatat.</p>}</>}
+      {tab === 'Berita' && <><NewsDesk game={game} /><PresidencyHistory game={game} /></>}
     </main>
     <footer><nav className="shell navigation" aria-label="Navigasi utama">{tabs.map(item =>
       <button key={item} aria-current={tab === item ? 'page' : undefined} onClick={() => { setTab(item); setPositionId(undefined); }}>{item}</button>,

@@ -1,3 +1,5 @@
+import { defaultMandate } from './mandate';
+export * from './mandate';
 import { defaultPresident } from './president';
 export * from './president';
 import { initialCampaign } from './campaign';
@@ -53,6 +55,7 @@ export function initialGame(seed = 20261119): GameState {
     turn: 1, seed: seed >>> 0,
     campaign: initialCampaign(seed),
     president: { ...defaultPresident },
+    mandate: defaultMandate(),
     positions: Object.fromEntries(positions.map(([id, title, ministryId]) => [id, { id, title, ministryId }])),
     characters: Object.fromEntries(Object.values(characters).map(
       ({ id, partyId, relationships }) => [id, { partyId, relationships: { ...relationships } }],

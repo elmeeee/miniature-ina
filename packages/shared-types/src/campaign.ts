@@ -48,7 +48,9 @@ export type CampaignState = {
   budgetArchive: BudgetCycle[];
   blocs: Record<string, Bloc>;
   bills: Bill[];
-  quarters: { week: number; accounts: Accounts; debt: number }[];
+  quarters: { week: number; accounts: Accounts; debt: number; tracking?: CashTracking }[];
+  quarterTracking?: CashTracking;
+  developments?: Development[];
   months: { week: number; gdp: number; inflation: number; unemployment: number }[];
   delayed: { week: number; field: 'humanCapital' | 'infrastructure'; amount: number }[];
   effectiveTax: number;
@@ -83,3 +85,11 @@ export type ElectionResult = {
   regions: { id: string; turnout: number; votes: Record<string, number> }[];
   epilogues: string[];
 };
+
+export type CashTracking = { plannedSpending: number; plannedRevenue: number; borrowing: number; redemption: number };
+export type Development =
+  | { week: number; kind: 'budget'; approved: boolean; yes: number }
+  | { week: number; kind: 'coalition'; partyId: string; joined: boolean }
+  | { week: number; kind: 'effect'; field: 'humanCapital' | 'infrastructure' | 'tax'; change: number }
+  | { week: number; kind: 'region'; regionId: string; change: number }
+  | { week: number; kind: 'conflict'; characterId: string; positionId: string; choice: 'heard' | 'resigned' };

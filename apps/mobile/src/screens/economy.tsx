@@ -1,3 +1,4 @@
+import { QuarterlyBriefing } from './quarterly';
 import { useState } from 'react';
 import { baselinePlan, caucuses, salutation, termWeeks } from '@republik/game-data';
 import { debtRatio, forecast, ministryRequests } from '@republik/simulation';
@@ -92,6 +93,7 @@ function BudgetEditor({ game }: { game: GameState }) {
 export function NationalEconomy({ game }: { game: GameState }) {
   const c = game.campaign;
   return <div className="stack">
+    <article className="office-paper"><QuarterlyBriefing campaign={c} /></article>
     <article className="panel"><h2>Indikator Ekonomi</h2><dl className="campaign-data">
       {(Object.keys(indicators) as (keyof Economy)[]).map(key =>
         <div key={key}><dt>{indicators[key][0]}</dt><dd>{number.format(c.economy[key])}{indicators[key][1]}</dd></div>,
@@ -112,9 +114,6 @@ export function NationalEconomy({ game }: { game: GameState }) {
           Tahun {budget.year} · {budgetStatus[budget.status]} · Saldo {fiscal(budget.accrued.balance)}
           {budget.vote ? ' · ' + budget.vote.yes + ' setuju / ' + budget.vote.no + ' menolak' : ''}
         </p>)}
-      </details>}
-      {c.quarters.length > 0 && <details><summary>Arsip kumulatif setiap triwulan</summary>
-        {[...c.quarters].reverse().map(q => <p key={q.week}>Minggu {q.week} · Saldo {fiscal(q.accounts.balance)} · Utang {fiscal(q.debt)}</p>)}
       </details>}
       {c.months.length > 0 && <details><summary>Laporan ekonomi bulanan</summary>
         {[...c.months].reverse().map(m => <p key={m.week}>Minggu {m.week} · PDB {fiscal(m.gdp)} · Inflasi {number.format(m.inflation)}% · Pengangguran {number.format(m.unemployment)}%</p>)}
