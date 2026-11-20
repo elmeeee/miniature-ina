@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { characters, termWeeks } from '@republik/game-data';
+import { characters, presidentId, salutation, termWeeks } from '@republik/game-data';
 import { candidatePool, type CabinetAction } from '@republik/simulation';
 import type { Character, GameState, GovernmentPosition } from '@republik/shared-types';
 import { CharacterCard } from '@republik/ui';
@@ -13,9 +13,9 @@ export function MinisterPerformance({ character }: { character: Character }) {
 export function CabinetRoster({ game, select }: { game: GameState; select: (id: string) => void }) {
   return <div className="roster">{Object.values(game.positions).map(position => {
     const holder = position.currentHolderId ? characters[position.currentHolderId] : undefined;
-    return <article className="panel ministry" key={position.id}>
+    return <article className="panel ministry" key={position.id + (holder?.id ?? 'vacant')}>
       <div className="card-heading"><h3>{position.title}</h3><span className={holder ? 'status filled' : 'status'}>{holder ? 'Terisi' : 'Kosong'}</span></div>
-      {holder ? <><CharacterCard character={holder} src={portraitUrl(holder.portraitAssetId)} /><MinisterPerformance character={holder} /></>
+      {holder ? <><CharacterCard character={holder} src={portraitUrl(holder.portraitAssetId)} /><MinisterPerformance character={holder} /><small>Relasi dengan {salutation(game.president)} · {game.characters[holder.id].relationships[presidentId] ?? 0}</small></>
         : <p>Belum ada menteri yang menjabat.</p>}
       {game.campaign.week <= termWeeks && <button className="outline" onClick={() => select(position.id)}>{holder ? 'Kelola jabatan' : 'Pilih kandidat'} <span aria-hidden="true">→</span></button>}
     </article>;

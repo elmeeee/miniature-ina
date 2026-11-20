@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { characters, presidentId } from '@republik/game-data';
+import { characters, currentCharacter, presidentId } from '@republik/game-data';
 import type { GameState } from '@republik/shared-types';
 import { CharacterProfile } from '@republik/ui';
 import { portraitUrl } from '../services/assets';
@@ -10,7 +10,7 @@ export function PoliticalRelationshipGraph({ game, focus }: { game: GameState; f
     <h2>Relasi politik</h2>
     {relations.length === 0 && <p>Belum ada relasi tercatat.</p>}
     {relations.map(([id, value]) => <div className="relation" key={id}>
-      <span>{characters[id].fullName}</span>
+      <span>{currentCharacter(game, id).fullName}</span>
       <span className="relation-track" aria-hidden="true"><i className={value < 0 ? 'negative' : 'positive'} style={{ width: Math.abs(value) / 2 + '%' }} /></span>
       <strong>{value > 0 ? '+' : ''}{value}</strong>
     </div>)}
@@ -19,7 +19,7 @@ export function PoliticalRelationshipGraph({ game, focus }: { game: GameState; f
 
 export function Politics({ game }: { game: GameState }) {
   const [focus, setFocus] = useState<string>(presidentId);
-  const selected = characters[focus];
+  const selected = currentCharacter(game, focus);
   const partyId = game.characters[focus].partyId;
   return <div className="stack">
     <section className="roster">{Object.values(game.parties).map(party => <article className="panel" key={party.id}>
@@ -27,7 +27,7 @@ export function Politics({ game }: { game: GameState }) {
       <p>Ketua · {characters[party.leaderId].fullName}</p><p>Faksi · {party.factions.join(', ')}</p><p>Kebijakan · {party.preferences.join(', ')}</p>
     </article>)}</section>
     <label>Tokoh politik<select value={focus} onChange={event => setFocus(event.target.value)}>
-      {Object.values(characters).map(person => <option value={person.id} key={person.id}>{person.fullName}</option>)}
+      {Object.values(characters).map(person => <option value={person.id} key={person.id}>{currentCharacter(game, person.id).fullName}</option>)}
     </select></label>
     <div className="split">
       <CharacterProfile character={selected} src={portraitUrl(selected.portraitAssetId)} party={partyId ? game.parties[partyId].name : undefined} />

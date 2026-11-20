@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { baselinePlan, termWeeks } from '@republik/game-data';
+import { baselinePlan, caucuses, salutation, termWeeks } from '@republik/game-data';
 import { debtRatio, forecast, ministryRequests } from '@republik/simulation';
 import { revenueLines, spendingLines } from '@republik/shared-types';
 import type { Accounts, BudgetPlan, Economy, GameState } from '@republik/shared-types';
 import { usePresidentialDecision } from './campaign';
+import { SceneDialogue } from './office';
 
 const number = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 });
 const fiscal = (value: number) => number.format(value) + ' T';
@@ -57,8 +58,9 @@ function BudgetEditor({ game }: { game: GameState }) {
       <details>
         <summary>Alokasi belanja dan permintaan kementerian</summary>
         <div className="budget-grid">{spendingLines.filter(key => key !== 'interest').map(key =>
-          <label key={key}>{spendingLabels[key]} <small>Permintaan {fiscal(requests[key])}</small>
-            <input type="number" min="0" max={baselinePlan.spending[key] * 3} value={draft.spending[key]} disabled={!editable}
+          <label className="allocation" key={key}>{spendingLabels[key]} <small>Permintaan {fiscal(requests[key])}</small>
+            <output>{fiscal(draft.spending[key])}</output>
+            <input type="range" min="0" max={baselinePlan.spending[key] * 3} value={draft.spending[key]} disabled={!editable}
               onChange={event => {
                 const value = event.target.valueAsNumber;
                 if (Number.isInteger(value) && value >= 0 && value <= baselinePlan.spending[key] * 3) setDraft({ ...draft, spending: { ...draft.spending, [key]: value } });
@@ -67,6 +69,12 @@ function BudgetEditor({ game }: { game: GameState }) {
         )}</div>
       </details>
       <div><h3>Proyeksi Rancangan</h3><FiscalSummary accounts={projection} /></div>
+      {c.budget.status === 'submitted' && <section className="policy-row" aria-label="Pembahasan anggaran">
+        <h3>Pembahasan anggaran</h3>
+        <SceneDialogue speakerId="sari_maheswari" role="Ketua Karya Bersama"
+          text={`${salutation(game.president)} ${game.president.name}, ${projection.balance < 0 ? 'rancangan ini memerlukan pembiayaan ' + fiscal(projection.financing) + '.' : 'rancangan ini memproyeksikan surplus.'} Fraksi kami menilai alokasi kesehatan ${fiscal(draft.spending.health)}; ${c.blocs.karya.trust < 50 ? 'kami masih menunggu revisi yang meyakinkan.' : 'kami siap membawa rancangan ke pembahasan fraksi.'}`} />
+        <small>Koalisi saat ini · {caucuses.filter(party => c.blocs[party.id].member).reduce((total, party) => total + party.seats, 0)} kursi. Pemungutan suara memakai rancangan terakhir yang diajukan.</small>
+      </section>}
       <details><summary>Rincian pendapatan dan belanja</summary>
         <dl className="campaign-data">{revenueLines.map(key => <div key={key}><dt>{revenueLabels[key]}</dt><dd>{fiscal(projection.revenue[key])}</dd></div>)}
           {spendingLines.map(key => <div key={key}><dt>{spendingLabels[key]}</dt><dd>{fiscal(projection.spending[key])}</dd></div>)}</dl>
@@ -90,6 +98,12 @@ export function NationalEconomy({ game }: { game: GameState }) {
       )}
       <div><dt>Utang terhadap PDB</dt><dd>{number.format(debtRatio(c))}%</dd></div>
     </dl></article>
+    {c.months.length > 0 && <article className="panel"><h2>Tren inflasi</h2>
+      <div className="economy-trend">{c.months.slice(-6).map(month => <div key={month.week}>
+        <small>Minggu {month.week}</small>
+        <meter min={-3} max={30} low={0} high={7} optimum={3} value={month.inflation} aria-label={'Inflasi minggu ' + month.week} />
+        <small>{number.format(month.inflation)}%</small>
+      </div>)}</div></article>}
     <BudgetEditor key={c.budget.year} game={game} />
     <article className="panel"><h2>Realisasi APBN</h2>
       <FiscalSummary accounts={c.budget.accrued} />

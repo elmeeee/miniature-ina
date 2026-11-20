@@ -41,7 +41,10 @@ export function WeeklyBriefing({ game }: { game: GameState }) {
         <p>Tahun {c.budget.year} · {phases[c.budget.year - 1]} · Minggu {Math.min(c.week, termWeeks)}/{termWeeks}</p>
         <p>Legitimasi {number.format(c.legitimacy)}/100</p>
         {c.briefings.length > 0 && <p>{c.briefings.at(-1)?.message}</p>}</div>
-      {!c.election && !event && <button className="primary" onClick={() => run({ type: 'week' })}>Selesaikan minggu {c.week}</button>}
+      {!c.election && !event && <div className="actions">
+        <button className="primary" onClick={() => run({ type: 'week' })}>Selesaikan minggu {c.week}</button>
+        <button className="outline" onClick={() => run({ type: 'routine' })}>Lewati hingga 4 minggu</button>
+      </div>}
       {error && <p className="error" role="alert">{error}</p>}
     </article>
     {event && <article className="panel stack">
@@ -53,14 +56,14 @@ export function WeeklyBriefing({ game }: { game: GameState }) {
     </article>}
     {c.election && <article className="panel stack">
       <h2>Hasil Pemilu</h2>
-      <p>Pemenang: {candidates.find(candidate => candidate.id === c.election?.winnerId)?.name}</p>
+      <p>Pemenang: {c.election.winnerId === 'bima' ? game.president.name : candidates.find(candidate => candidate.id === c.election?.winnerId)?.name}</p>
       <dl className="campaign-data">{candidates.filter(candidate => c.election?.votes[candidate.id] !== undefined).map(candidate =>
-        <div key={candidate.id}><dt>{candidate.name}<small>{candidate.platform}</small></dt><dd>{number.format(c.election!.votes[candidate.id])} suara</dd></div>,
+        <div key={candidate.id}><dt>{candidate.incumbent ? game.president.name : candidate.name}<small>{candidate.platform}</small></dt><dd>{number.format(c.election!.votes[candidate.id])} suara</dd></div>,
       )}</dl>
       <details><summary>Partisipasi wilayah</summary>{c.election.regions.map(region =>
         <p key={region.id}>{c.regions.find(item => item.id === region.id)?.name} · {number.format(region.turnout)} pemilih</p>,
       )}</details>
-      <h3>Epilog</h3>
+      <h3>Warisan {game.president.name}</h3>
       <ul>{c.election.epilogues.map(id => <li key={id}>{epilogues[id]}</li>)}</ul>
     </article>}
   </section>;
@@ -84,7 +87,7 @@ export function PresidencyHistory({ game }: { game: GameState }) {
 }
 
 export function SaveSlots() {
-  const { saveSlot, loadSlot, resetSave, exportSave } = useGame();
+  const { saveSlot, loadSlot, openCreator, exportSave } = useGame();
   const [status, setStatus] = useState('');
   const [slot, setSlot] = useState(1);
   function perform(action: () => void, message: string) {
@@ -105,7 +108,7 @@ export function SaveSlots() {
         }}>Muat slot</button>
         <button className="outline" onClick={() => perform(exportSave, 'Ekspor dimulai.')}>Ekspor</button>
         <button className="outline" onClick={() => {
-          if (window.confirm('Mulai kampanye baru dan ganti simpanan otomatis?')) perform(resetSave, 'Kampanye baru dimulai.');
+          if (window.confirm('Mulai kampanye baru dan ganti simpanan otomatis?')) openCreator();
         }}>Kampanye baru</button>
       </div>
       {status && <p role="status">{status}</p>}

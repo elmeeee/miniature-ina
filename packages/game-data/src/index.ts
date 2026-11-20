@@ -1,3 +1,5 @@
+import { defaultPresident } from './president';
+export * from './president';
 import { initialCampaign } from './campaign';
 export * from './campaign';
 import type { Character, GameState } from '@republik/shared-types';
@@ -50,6 +52,7 @@ export function initialGame(seed = 20261119): GameState {
   return {
     turn: 1, seed: seed >>> 0,
     campaign: initialCampaign(seed),
+    president: { ...defaultPresident },
     positions: Object.fromEntries(positions.map(([id, title, ministryId]) => [id, { id, title, ministryId }])),
     characters: Object.fromEntries(Object.values(characters).map(
       ({ id, partyId, relationships }) => [id, { partyId, relationships: { ...relationships } }],
@@ -64,3 +67,10 @@ export function initialGame(seed = 20261119): GameState {
 }
 
 export * from './stories';
+
+export function currentCharacter(game: GameState, id: string): Character {
+  const character = characters[id];
+  return id === presidentId
+    ? { ...character, fullName: game.president.name, portraitAssetId: game.president.portrait }
+    : character;
+}

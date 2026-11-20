@@ -1,15 +1,15 @@
 import { create } from 'zustand';
-import { applyCabinetAction, applyPresidencyAction, loadGame, saveGame, type CabinetAction, type PresidencyAction } from '@republik/simulation';
+import { applyCabinetAction, applyPresidencyAction, loadGame, saveGame, startPresidency, transitionOpening, type OpeningAction, type CabinetAction, type PresidencyAction } from '@republik/simulation';
 import { initialGame } from '@republik/game-data';
-import type { GameState } from '@republik/shared-types';
+import type { GameState, PresidentIdentity } from '@republik/shared-types';
 
 const storageKey = 'republik.game';
 function restore() {
   try {
     const raw = localStorage.getItem(storageKey);
-    return { game: raw ? loadGame(raw) : initialGame(), recovery: '' };
+    return { game: raw ? loadGame(raw) : initialGame(), recovery: '', creating: !raw };
   } catch {
-    return { game: initialGame(), recovery: 'Simpanan tidak dapat dibaca. Ekspor data lama sebelum memulai ulang.' };
+    return { game: initialGame(), recovery: 'Simpanan tidak dapat dibaca. Ekspor data lama sebelum memulai ulang.', creating: false };
   }
 }
 
@@ -23,7 +23,11 @@ interface GameStore {
   saveSlot: (slot: number) => void;
   loadSlot: (slot: number) => void;
   exportSave: () => void;
-  resetSave: () => void;
+  creating: boolean;
+  openCreator: () => void;
+  closeCreator: () => void;
+  start: (profile: PresidentIdentity) => void;
+  openingAction: (action: OpeningAction) => void;
 }
 
 export const useGame = create<GameStore>((set, get) => {
@@ -46,7 +50,7 @@ export const useGame = create<GameStore>((set, get) => {
       if (raw === null) throw new Error('Slot ini masih kosong.');
       const game = loadGame(raw);
       localStorage.setItem(storageKey, saveGame(game));
-      set({ game, recovery: '' });
+      set({ game, recovery: '', creating: false });
     },
     exportSave: () => {
       const raw = localStorage.getItem(storageKey) ?? saveGame(get().game);
@@ -57,10 +61,13 @@ export const useGame = create<GameStore>((set, get) => {
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     },
-    resetSave: () => {
-      const game = initialGame(crypto.getRandomValues(new Uint32Array(1))[0]);
+    openCreator: () => set({ creating: true }),
+    closeCreator: () => set({ creating: localStorage.getItem(storageKey) === null }),
+    openingAction: action => commit(transitionOpening(get().game, action)),
+    start: profile => {
+      const game = startPresidency(crypto.getRandomValues(new Uint32Array(1))[0], profile);
       localStorage.setItem(storageKey, saveGame(game));
-      set({ game, recovery: '' });
+      set({ game, recovery: '', creating: false });
     },
   };
 });

@@ -1,8 +1,10 @@
+import { applyOpeningAction, validOpening, type OpeningAction } from './opening';
+export { openingDialogue, openingHeadline, openingPolicies, coalitionReplies, type OpeningAction } from './opening';
 import { validateCampaign } from './campaign';
 export * from './campaign';
 export { forecast } from './fiscal';
-import { characters, initialCampaign, initialGame, positions, presidentId, termWeeks } from '@republik/game-data';
-import type { GameState } from '@republik/shared-types';
+import { characters, defaultPresident, initialCampaign, initialGame, isPresident, positions, presidentId, termWeeks } from '@republik/game-data';
+import type { GameState, PresidentIdentity } from '@republik/shared-types';
 
 export type CabinetAction =
   | { type: 'appoint' | 'replace'; positionId: string; characterId: string; reason: string }
@@ -32,6 +34,7 @@ export function validateState(state: GameState): void {
   requireValid(isRecord(state) && inRange(state.turn, 1, Number.MAX_SAFE_INTEGER) && inRange(state.seed, 0, 0xffffffff), 'Giliran atau seed tidak valid.');
   requireValid(isRecord(state.characters) && isRecord(state.parties) && isRecord(state.positions) && Array.isArray(state.appointments) && Array.isArray(state.events), 'Struktur simpanan tidak valid.');
   validateCampaign(state.campaign);
+  requireValid(isPresident(state.president) && validOpening(state.opening, state), 'Profil atau adegan Presiden tidak valid.');
   const baseline = initialGame();
   requireValid(Object.keys(state.characters).length === Object.keys(characters).length && Object.keys(state.parties).length === Object.keys(baseline.parties).length, 'Daftar tokoh atau partai tidak lengkap.');
   for (const id of Object.keys(characters)) {
@@ -179,7 +182,7 @@ export function realignCharacter(state: GameState, characterId: string, partyId:
 
 export function saveGame(state: GameState): string {
   validateState(state);
-  return JSON.stringify({ version: 2, state });
+  return JSON.stringify({ version: 3, state });
 }
 
 export function loadGame(raw: string): GameState {
@@ -189,8 +192,27 @@ export function loadGame(raw: string): GameState {
   if (envelope.version === 0 || envelope.version === 1) {
     requireValid(inRange(envelope.state.seed, 0, 0xffffffff), 'Seed simpanan tidak valid.');
     envelope.state.campaign = initialCampaign(envelope.state.seed);
-  } else requireValid(envelope.version === 2, 'Versi simpanan tidak didukung.');
+  } else requireValid(envelope.version === 2 || envelope.version === 3, 'Versi simpanan tidak didukung.');
+  if (envelope.version !== 3) envelope.state.president = { ...defaultPresident };
   const state = envelope.state as unknown as GameState;
   validateState(state);
   return state;
+}
+
+export function startPresidency(seed: number, president: PresidentIdentity): GameState {
+  requireValid(isPresident(president), 'Profil Presiden tidak valid.');
+  let state: GameState = { ...initialGame(seed), president: { ...president } };
+  for (const [positionId, characterId] of [
+    ['finance', 'anindita_prameswari'], ['foreign', 'surya_wirawan'], ['health', 'maya_santoso'],
+  ]) {
+    state = applyCabinetAction(state, { type: 'appoint', positionId, characterId, reason: 'Pembentukan kabinet awal' });
+  }
+  return { ...state, opening: { stage: 'inauguration' } };
+}
+
+export function transitionOpening(state: GameState, action: OpeningAction): GameState {
+  validateState(state);
+  const next = applyOpeningAction(state, action);
+  validateState(next);
+  return next;
 }

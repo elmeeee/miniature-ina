@@ -1,13 +1,15 @@
 import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { characters, presidentId, termWeeks } from '@republik/game-data';
-import { CharacterExpression } from '@republik/ui';
+import { termWeeks } from '@republik/game-data';
 import { CabinetHistory, CabinetRoster, ReshufflePanel } from '../screens/cabinet';
-import { WeeklyBriefing, PresidencyHistory, SaveSlots } from '../screens/campaign';
+import { PresidencyHistory } from '../screens/campaign';
+import { Inauguration, PresidentCreator, PresidentialOffice } from '../screens/office';
+import { openingHeadline } from '@republik/simulation';
+import { sceneArt } from '../services/scenes';
+import './cinematic.css';
 import { NationalEconomy } from '../screens/economy';
 import { Parliament } from '../screens/parliament';
 import { Politics } from '../screens/politics';
-import { portraitUrl } from '../services/assets';
 import { useGame } from '../stores/game';
 import './style.css';
 
@@ -27,7 +29,7 @@ function App() {
   const [positionId, setPositionId] = useState<string>();
   const [history, setHistory] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const { game, recovery, resetSave, exportSave } = useGame();
+  const { game, recovery, creating, openCreator, closeCreator, openingAction, exportSave } = useGame();
   const positions = Object.values(game.positions);
   const staffed = positions.filter(position => position.currentHolderId).length;
 
@@ -35,19 +37,28 @@ function App() {
     try { action(); setSaveError(''); } catch (cause) { setSaveError((cause as Error).message); }
   }
 
+  if (creating) return <PresidentCreator onClose={recovery || game.opening || localStorage.getItem('republik.game') ? closeCreator : undefined} />;
+  if (!recovery && game.opening?.stage === 'inauguration') return <>
+    <Inauguration game={game} enter={() => { handleRecovery(() => openingAction({ type: 'inaugurate' })); setTab('Istana'); }} />
+    {saveError && <p className="error standalone-error" role="alert">{saveError}</p>}
+  </>;
+
+  const headline = openingHeadline(game);
+  const cover = { Istana: sceneArt.office, Kabinet: sceneArt.cabinet, Negara: sceneArt.palace, Politik: sceneArt.parliament, Berita: sceneArt.press };
+
   return <>
     <header className="top"><div className="shell masthead">
       <span className="brand-mark" aria-hidden="true">R</span><div><strong>REPUBLIK</strong><small>DI BALIK ISTANA</small></div>
       <span className="turn">MINGGU <b>{String(Math.min(game.campaign.week, termWeeks)).padStart(2, '0')}</b></span>
     </div></header>
-    <main className="shell layout">
-      <div className="hero"><div><h1>{copy[tab][0]}</h1><p>{copy[tab][1]}</p></div>
+    <main className="shell layout cinematic-layout">
+      {tab !== 'Istana' && <div className="hero chapter-cover" style={{ backgroundImage: 'linear-gradient(90deg, #101c30 6%, #101c30a6 58%, #101c3059), url(' + cover[tab] + ')' }}><div><h1>{copy[tab][0]}</h1><p>{copy[tab][1]}</p></div>
         {tab === 'Kabinet' && <div className="count"><b>{staffed}<sup> / {positions.length}</sup></b><small>JABATAN TERISI</small></div>}
-      </div>
+      </div>}
       {recovery && <section className="panel"><p role="alert">{recovery}</p>
         <div className="actions"><button className="outline" onClick={() => handleRecovery(exportSave)}>Ekspor simpanan</button>
           <button className="outline" onClick={() => {
-            if (window.confirm('Hapus simpanan yang tidak dapat dibaca?')) handleRecovery(resetSave);
+            if (window.confirm('Hapus simpanan yang tidak dapat dibaca?')) openCreator();
           }}>Mulai ulang</button></div>{saveError && <p role="alert">{saveError}</p>}</section>}
       {tab === 'Kabinet' && <>
         <div className="view-switch" aria-label="Tampilan kabinet">
@@ -57,13 +68,10 @@ function App() {
         {history ? <CabinetHistory game={game} /> : <CabinetRoster game={game} select={setPositionId} />}
         {positionId && <ReshufflePanel key={positionId} position={game.positions[positionId]} game={game} close={() => setPositionId(undefined)} />}
       </>}
-      {tab === 'Istana' && <><section className="panel president">
-        <CharacterExpression name={characters[presidentId].fullName} src={portraitUrl(presidentId, 'serious')} fallbackSrc={portraitUrl(presidentId)} />
-        <div><small>Presiden</small><h2>{characters[presidentId].fullName}</h2><button className="primary" onClick={() => setTab('Kabinet')}>Buka kabinet</button></div>
-      </section><WeeklyBriefing game={game} /><SaveSlots /></>}
+      {tab === 'Istana' && <PresidentialOffice key={game.president.name} game={game} navigate={setTab} />}
       {tab === 'Negara' && <NationalEconomy game={game} />}
       {tab === 'Politik' && <><Parliament game={game} /><Politics game={game} /></>}
-      {tab === 'Berita' && <><PresidencyHistory game={game} />{game.events.length ? <ol className="history">{[...game.events].reverse().map(event => <li className="panel" key={event.id}>
+      {tab === 'Berita' && <>{headline && <article className="panel"><small>Siaran perdana</small><h2>{headline}</h2></article>}<PresidencyHistory game={game} />{game.events.length ? <ol className="history">{[...game.events].reverse().map(event => <li className="panel" key={event.id}>
         <small>Giliran {event.turn}</small><h3>{event.title}</h3>
       </li>)}</ol> : <p className="panel empty">Belum ada perkembangan politik yang tercatat.</p>}</>}
     </main>

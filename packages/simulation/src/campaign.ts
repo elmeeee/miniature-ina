@@ -8,7 +8,7 @@ import type { Accounts, Bill, BudgetPlan, CampaignState, GameState, Vote } from 
 import { accrue, balanceAccounts, clampMetric, forecast, updateEconomy, validPlan } from './fiscal';
 
 export type PresidencyAction =
-  | { type: 'week' }
+  | { type: 'week' | 'routine' }
   | { type: 'choose-story'; choiceId: string }
   | { type: 'submit-budget' | 'amend-budget'; plan: BudgetPlan }
   | { type: 'vote-budget' }
@@ -116,16 +116,22 @@ function advance(state: GameState) {
 
 export function applyPresidencyAction(state: GameState, action: PresidencyAction): GameState {
   validateCampaign(state.campaign);
+  assert(!state.opening || state.opening.stage === 'complete', 'Selesaikan agenda perdana sebelum melanjutkan pemerintahan.');
   assert(state.campaign.week <= termWeeks, 'Masa jabatan telah berakhir.');
   const next = structuredClone(state);
   const c = next.campaign;
   const b = c.budget;
   switch (action.type) {
     case 'week':
+    case 'routine':
       assert(!c.pendingEvent, 'Putuskan peristiwa yang aktif sebelum lanjut.');
-      advance(next);
-      if (c.week <= termWeeks) offerStory(c, random(c));
-      else c.election = countElection(c, () => random(c));
+      for (let i = 0; i < (action.type === 'routine' ? 4 : 1); i++) {
+        const year = c.budget.year;
+        advance(next);
+        if (c.week <= termWeeks) offerStory(c, random(c));
+        else c.election = countElection(c, () => random(c));
+        if (c.pendingEvent || c.election || c.budget.year !== year) break;
+      }
       break;
     case 'choose-story':
       chooseStory(c, action.choiceId);
