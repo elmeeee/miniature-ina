@@ -7,7 +7,7 @@ npm ci
 npm run dev
 ```
 
-Use Node.js 24 (see `.node-version`). A fresh start opens President creation and a skippable inauguration, followed by a fiscal decision in the presidential office. Existing saves migrate on load. In **Kabinet**, fill an office, review a candidate and confirm the decision. **Riwayat** shows earlier appointments, and **Politik** and **Berita** show the political effects. Advance the calendar in **Istana**, propose a budget in **Negara**, and negotiate coalition backing or legislation in **Politik**. Progress autosaves after each decision, and Istana includes three manual save slots.
+Use Node.js 24 (see `.node-version`). A fresh start opens President creation and a skippable inauguration, followed by a fiscal decision in the presidential office. Existing saves migrate on load. In **Kabinet**, fill an office, review a candidate and confirm the decision. **Riwayat** shows earlier appointments, and **Politik** and **Berita** show the political effects. Advance the campaign through 20 chapters in **Istana**, propose a budget in **Negara**, and negotiate coalition backing or legislation in **Politik**. Progress autosaves after each decision, and the pause menu includes three manual save slots.
 
 ```sh
 npm run lint
@@ -26,3 +26,4 @@ After syncing, open `apps/mobile/android` in Android Studio with JDK 21 and Andr
 - [Cinematic revamp audit](docs/production/REVAMP_AUDIT.md)
 - [Cinematic revamp progress](docs/production/REVAMP_PROGRESS.md)
 - [Benchmark gameplay, accounting and test notes](docs/production/BENCHMARK_PROGRESS.md)
+- [Chapter campaign and replay notes](docs/production/CAMPAIGN_PROGRESS.md)

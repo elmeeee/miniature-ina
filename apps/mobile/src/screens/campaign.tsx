@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { caucuses, stories, termWeeks } from '@republik/game-data';
-import { availableStory, candidates, epilogues, type PresidencyAction } from '@republik/simulation';
+import { CharacterExpression } from '@republik/ui';
+import { portraitUrl } from '../services/assets';
+import { caucuses, chapterYears, chapters, characters, salutation, stories } from '@republik/game-data';
+import { availableStory, chapterAgenda, type PresidencyAction } from '@republik/simulation';
 import type { EventEffect, GameState } from '@republik/shared-types';
 import { useGame } from '../stores/game';
 
@@ -30,42 +32,44 @@ export function usePresidentialDecision() {
   return { error, run };
 }
 
-export function WeeklyBriefing({ game }: { game: GameState }) {
+export function ChapterBriefing({ game }: { game: GameState }) {
   const c = game.campaign;
+  const agenda = chapterAgenda(game);
   const event = availableStory(c);
   const { run, error } = usePresidentialDecision();
-  const phases = ['Konsolidasi', 'Reformasi', 'Tekanan', 'Penataan Aliansi', 'Warisan'];
+  const year = Math.ceil(agenda.id / 4);
   return <section className="stack">
-    <article className="panel stack">
-      <div><h2>{c.election ? 'Masa Jabatan Selesai' : 'Briefing Mingguan'}</h2>
-        <p>Tahun {c.budget.year} · {phases[c.budget.year - 1]} · Minggu {Math.min(c.week, termWeeks)}/{termWeeks}</p>
+    <article className="office-paper stack">
+      <div><p className="scene-kicker">BAB {agenda.id} DARI 20 · {chapterYears[year - 1]}</p><h2>{agenda.chapter.title}</h2>
+        <p>{agenda.chapter.brief}</p>
         <p>Pertumbuhan {number.format(c.economy.growth)}% · Inflasi {number.format(c.economy.inflation)}% · Legitimasi {number.format(c.legitimacy)}/100</p>
-        {!c.election && c.delayed.length > 0 && <p>Dampak proyek terdekat dijadwalkan minggu {Math.min(...c.delayed.map(item => item.week))}.</p>}
-        {c.briefings.length > 0 && <p>{c.briefings.at(-1)?.message}</p>}</div>
-      {!c.election && !event && <div className="actions">
-        <button className="primary" onClick={() => run({ type: 'week' })}>Selesaikan minggu {c.week}</button>
-        <button className="outline" onClick={() => run({ type: 'routine' })}>Lewati hingga 4 minggu</button>
-      </div>}
+        {agenda.previous && <p>Catatan kabinet mengaitkan agenda ini dengan keputusan Bab {agenda.previous.chapter} · {chapters[agenda.previous.chapter - 1].title}.</p>}
+        {c.delayed.length > 0 && <p>Dampak proyek terdekat dijadwalkan minggu {Math.min(...c.delayed.map(item => item.week))}.</p>}
+      </div>
+      {!event && <>
+        {agenda.decision < 2 ? <>
+          <div className="scene-dialogue"><CharacterExpression name={characters[agenda.speaker].fullName}
+            src={portraitUrl(characters[agenda.speaker].portraitAssetId)} />
+            <p><strong>{characters[agenda.speaker].fullName}</strong> · “{salutation(game.president)}, {agenda.party.name} mencatat kepercayaan {agenda.partnerTrust}/100. {c.economy.inflation > 5 ? 'Biaya hidup sedang menekan publik.' : 'Kita masih punya ruang untuk menentukan prioritas.'}”</p></div>
+          <p>Keputusan {agenda.decision + 1} dari 2</p>
+          <div className="scene-choices">{agenda.options.map((option, index) =>
+            <button key={option.title} className="scene-option" disabled={option.disabled} onClick={() => run({ type: 'chapter-choice', option: index as 0 | 1 })}>
+              <strong>{option.title}</strong><span>{option.detail}</span>
+            </button>,
+          )}</div>
+        </> : <>
+          <p>Agenda utama sudah diputuskan. Kelola kabinet, APBN, atau DPR sebelum melanjutkan jika perlu.</p>
+          <button className="primary" onClick={() => run({ type: 'advance-chapter' })}>Jalankan sisa Bab {agenda.id}</button>
+        </>}
+      </>}
       {error && <p className="error" role="alert">{error}</p>}
     </article>
-    {event && <article className="panel stack">
+    {event && <article className="office-paper stack">
       <div><h2>{event.title}</h2><p>{event.text}</p></div>
       {event.choices.map(choice => <div key={choice.id} className="stack choice">
         <button className="outline" onClick={() => run({ type: 'choose-story', choiceId: choice.id })}>{choice.label}</button>
         <small>{choice.effects.map(effect => effectText(effect, game)).join(' · ')}</small>
       </div>)}
-    </article>}
-    {c.election && <article className="panel stack">
-      <h2>Hasil Pemilu</h2>
-      <p>Pemenang: {c.election.winnerId === 'bima' ? game.president.name : candidates.find(candidate => candidate.id === c.election?.winnerId)?.name}</p>
-      <dl className="campaign-data">{candidates.filter(candidate => c.election?.votes[candidate.id] !== undefined).map(candidate =>
-        <div key={candidate.id}><dt>{candidate.incumbent ? game.president.name : candidate.name}<small>{candidate.platform}</small></dt><dd>{number.format(c.election!.votes[candidate.id])} suara</dd></div>,
-      )}</dl>
-      <details><summary>Partisipasi wilayah</summary>{c.election.regions.map(region =>
-        <p key={region.id}>{c.regions.find(item => item.id === region.id)?.name} · {number.format(region.turnout)} pemilih</p>,
-      )}</details>
-      <h3>Warisan {game.president.name}</h3>
-      <ul>{c.election.epilogues.map(id => <li key={id}>{epilogues[id]}</li>)}</ul>
     </article>}
   </section>;
 }
@@ -85,34 +89,4 @@ export function PresidencyHistory({ game }: { game: GameState }) {
       {[...c.briefings].reverse().map(entry => <p key={entry.week}>Minggu {entry.week} · {entry.message}</p>)}
     </details>
   </section>;
-}
-
-export function SaveSlots() {
-  const { saveSlot, loadSlot, openCreator, exportSave } = useGame();
-  const [status, setStatus] = useState('');
-  const [slot, setSlot] = useState(1);
-  function perform(action: () => void, message: string) {
-    try { action(); setStatus(message); } catch (cause) { setStatus((cause as Error).message); }
-  }
-  return <details className="panel">
-    <summary>Simpanan kampanye</summary>
-    <div className="stack">
-      <label>Slot<select value={slot} onChange={event => { setSlot(Number(event.target.value)); setStatus(''); }}>
-        {[1, 2, 3].map(id => <option key={id} value={id}>Slot {id}</option>)}
-      </select></label>
-      <div className="actions">
-        <button className="outline" onClick={() => {
-          if (window.confirm('Tulis kampanye aktif ke slot ini?')) perform(() => saveSlot(slot), 'Slot disimpan.');
-        }}>Simpan ke slot</button>
-        <button className="outline" onClick={() => {
-          if (window.confirm('Ganti kampanye aktif dengan isi slot ini?')) perform(() => loadSlot(slot), 'Slot dimuat.');
-        }}>Muat slot</button>
-        <button className="outline" onClick={() => perform(exportSave, 'Ekspor dimulai.')}>Ekspor</button>
-        <button className="outline" onClick={() => {
-          if (window.confirm('Mulai kampanye baru dan ganti simpanan otomatis?')) openCreator();
-        }}>Kampanye baru</button>
-      </div>
-      {status && <p role="status">{status}</p>}
-    </div>
-  </details>;
 }

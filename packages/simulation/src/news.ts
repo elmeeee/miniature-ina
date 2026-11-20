@@ -1,3 +1,4 @@
+import { chapterDecisionLabel } from './chapters';
 import { caucuses, characters, stories } from '@republik/game-data';
 import type { GameState } from '@republik/shared-types';
 import { openingHeadline } from './opening';
@@ -14,6 +15,11 @@ export function campaignNews(game: GameState): Article[] {
     id: 'opening', week: 1, outlet: 'Suara Istana', title: headline,
     summary: 'Pemerintah menuntaskan pembahasan awal dengan Karya Bersama.', breaking: true,
   });
+  for (const row of c.chapters?.choices ?? []) {
+    articles.push({ id: 'chapter-' + row.chapter + '-' + row.decision, week: row.week, outlet: 'Warta Nasional',
+      title: chapterDecisionLabel(row.chapter, row.decision, row.option),
+      summary: 'Agenda ' + game.president.name + ' · ' + characters[row.characterId].fullName, breaking: false });
+  }
   for (const event of game.events) {
     if (event.turn <= 4 && game.opening && game.appointments.some(item => item.startTurn === event.turn && item.appointmentReason === 'Pembentukan kabinet awal')) continue;
     articles.push({ id: event.id, week: event.week ?? 0, outlet: 'Suara Istana', title: event.title,

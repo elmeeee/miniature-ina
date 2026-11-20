@@ -77,3 +77,4 @@ export function currentCharacter(game: GameState, id: string): Character {
     ? { ...character, fullName: game.president.name, portraitAssetId: game.president.portrait }
     : character;
 }
+export * from './chapters';

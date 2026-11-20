@@ -114,3 +114,15 @@
 .region-map img { width: 100%; display: block; }
 .region-map button { position: absolute; transform: translate(-50%, -50%); width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 1px solid var(--gold); border-radius: 50%; color: var(--ivory); background: #101c30e8; }
 .region-map button[aria-pressed=true] { background: var(--gold); color: var(--navy); }
+.game-menu h1, .end-summary h1, .legacy-report h1 { font-size: clamp(2rem, 8vw, 3.75rem); }
+.pause-surface { position: fixed; inset: 0; padding: max(16px, env(safe-area-inset-top)) 12px max(24px, env(safe-area-inset-bottom)); z-index: 40; overflow-y: auto; display: grid; justify-items: center; align-items: start; }
+.pause-surface::before { position: fixed; }
+.saved-president { display: flex; align-items: center; gap: 12px; }
+.saved-president .portrait { width: 56px; height: 68px; }
+.game-menu, .end-summary { overflow-wrap: anywhere; }
+.masthead > .outline { flex: 0 0 auto; font-size: .8rem; }
+.end-summary li, .legacy-report li { margin-block: 5px; color: var(--slate); }
+.playing-shell { height: 100dvh; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+.playing-shell > main { overflow-y: auto; display: block; width: 100%; padding-bottom: 28px; }
+.playing-shell > main > * + * { margin-top: 16px; }
+.playing-shell > footer { position: static; }

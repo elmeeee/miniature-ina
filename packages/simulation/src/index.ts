@@ -1,3 +1,4 @@
+import { chapterRun } from './chapters';
 import { applyOpeningAction, validOpening, type OpeningAction } from './opening';
 export { openingDialogue, openingHeadline, openingPolicies, coalitionReplies, type OpeningAction } from './opening';
 import { recordDevelopment, validateCampaign } from './campaign';
@@ -5,8 +6,8 @@ export * from './campaign';
 export { forecast } from './fiscal';
 export * from './quarterly';
 export * from './news';
-import { backgrounds, characters, defaultMandate, difficulties, validMandate, defaultPresident, initialCampaign, initialGame, isPresident, positions, presidentId, termWeeks } from '@republik/game-data';
-import type { GameState, Mandate, PresidentIdentity } from '@republik/shared-types';
+import { backgrounds, chapterNumber, characters, defaultMandate, difficulties, validMandate, defaultPresident, initialCampaign, initialGame, isPresident, positions, presidentId, termWeeks } from '@republik/game-data';
+import type { ChapterRun, GameState, Mandate, PresidentIdentity } from '@republik/shared-types';
 
 export type CabinetAction =
   | { type: 'appoint' | 'replace'; positionId: string; characterId: string; reason: string }
@@ -184,7 +185,7 @@ export function realignCharacter(state: GameState, characterId: string, partyId:
 
 export function saveGame(state: GameState): string {
   validateState(state);
-  return JSON.stringify({ version: 4, state });
+  return JSON.stringify({ version: 5, state });
 }
 
 export function loadGame(raw: string): GameState {
@@ -194,9 +195,9 @@ export function loadGame(raw: string): GameState {
   if (envelope.version === 0 || envelope.version === 1) {
     requireValid(inRange(envelope.state.seed, 0, 0xffffffff), 'Seed simpanan tidak valid.');
     envelope.state.campaign = initialCampaign(envelope.state.seed);
-  } else requireValid(envelope.version === 2 || envelope.version === 3 || envelope.version === 4, 'Versi simpanan tidak didukung.');
+  } else requireValid(envelope.version === 2 || envelope.version === 3 || envelope.version === 4 || envelope.version === 5, 'Versi simpanan tidak didukung.');
   if (envelope.version === 0 || envelope.version === 1 || envelope.version === 2) envelope.state.president = { ...defaultPresident };
-  if (envelope.version !== 4) envelope.state.mandate = defaultMandate();
+  if ([0, 1, 2, 3].some(version => version === envelope.version)) envelope.state.mandate = defaultMandate();
   const state = envelope.state as unknown as GameState;
   validateState(state);
   return state;
@@ -255,4 +256,30 @@ export function resolveCabinetConflict(state: GameState, positionId: string, cho
   recordDevelopment(next.campaign, { week: next.campaign.week, kind: 'conflict', characterId: conflict.id, positionId, choice });
   validateState(next);
   return next;
+}
+
+export function enableChapters(game: GameState): GameState {
+  validateState(game);
+  if (game.campaign.chapters || game.campaign.election) return game;
+  const next = structuredClone(game);
+  next.campaign.chapters = chapterRun(chapterNumber(next));
+  return next;
+}
+
+export function startChapterCampaign(seed: number, president: PresidentIdentity, mandate: Mandate, scenario: ChapterRun['scenario']) {
+  const game = startPresidency(seed, president, mandate);
+  game.campaign.chapters = chapterRun(1, scenario);
+  if (scenario === 'recovery') {
+    game.campaign.economy.inflation += 2.4;
+    game.campaign.economy.foodPrice += 12;
+    game.campaign.economy.confidence -= 6;
+    game.campaign.blocs.karya.member = false;
+    game.campaign.blocs.karya.trust -= 14;
+    game.campaign.blocs.pesisir.member = true;
+    game.campaign.blocs.pesisir.trust += 7;
+    game.characters.sari_maheswari.relationships[presidentId] -= 8;
+    game.characters.ardi_nugraha.relationships[presidentId] += 7;
+  }
+  validateState(game);
+  return game;
 }

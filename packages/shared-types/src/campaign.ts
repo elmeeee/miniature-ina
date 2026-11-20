@@ -41,6 +41,7 @@ export type Bill = {
 };
 export type Region = { id: string; name: string; population: number; development: number; support: number };
 export type CampaignState = {
+  chapters?: ChapterRun;
   week: number;
   seed: number;
   economy: Economy;
@@ -93,3 +94,12 @@ export type Development =
   | { week: number; kind: 'effect'; field: 'humanCapital' | 'infrastructure' | 'tax'; change: number }
   | { week: number; kind: 'region'; regionId: string; change: number }
   | { week: number; kind: 'conflict'; characterId: string; positionId: string; choice: 'heard' | 'resigned' };
+
+export type ChapterRecord = { chapter: number; decision: 0 | 1; option: 0 | 1; week: number; characterId: string };
+export type ChapterRun = {
+  entered: number;
+  acknowledged: number;
+  choices: ChapterRecord[];
+  finaleSeen: boolean;
+  scenario: 'standard' | 'recovery';
+};

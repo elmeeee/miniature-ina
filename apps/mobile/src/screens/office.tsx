@@ -6,7 +6,7 @@ import { CharacterExpression } from '@republik/ui';
 import { portraitUrl } from '../services/assets';
 import { sceneArt } from '../services/scenes';
 import { useGame } from '../stores/game';
-import { SaveSlots, WeeklyBriefing } from './campaign';
+import { ChapterBriefing } from './campaign';
 import { MandateProgress } from './mandate';
 import { NewsDesk } from './news';
 import { QuarterlyBriefing } from './quarterly';
@@ -19,7 +19,7 @@ function PresidentPortrait({ profile, expression }: { profile: PresidentIdentity
 }
 
 export function PresidentCreator({ onClose }: { onClose?: () => void }) {
-  const start = useGame(store => store.start);
+  const { start, scenario } = useGame();
   const [gender, setGender] = useState<PresidentGender>('male');
   const [name, setName] = useState(presidentName('male'));
   const [neutral, setNeutral] = useState(false);
@@ -38,7 +38,8 @@ export function PresidentCreator({ onClose }: { onClose?: () => void }) {
       <section className="creation-preview" aria-label="Pratinjau Presiden"><PresidentPortrait profile={preview} /><div>
         <p>{salutation(preview)}</p><h1>{preview.name}</h1>
       </div></section>
-      <form className="creation-form" onSubmit={event => {
+      {scenario === 'recovery' && <p>Pemulihan Nasional · harga pangan dan inflasi lebih tinggi, kepercayaan bisnis melemah, dan koalisi awal bergeser ke Persatuan Pesisir.</p>}
+      <form className="creation-form"  onSubmit={event => {
         event.preventDefault();
         try { start(newPresident(name, gender, preview.address), mandate); } catch (cause) { setError((cause as Error).message); }
       }}>
@@ -85,7 +86,7 @@ export function PresidentCreator({ onClose }: { onClose?: () => void }) {
   </main>;
 }
 
-export function Inauguration({ game, enter }: { game: GameState; enter: () => void }) {
+export function Inauguration({ game, enter, pause }: { game: GameState; enter: () => void; pause: () => void }) {
   return <main className="inauguration scene" style={sceneStyle(sceneArt.palace)}>
     <div className="inauguration-inner">
       <p className="scene-kicker">PELANTIKAN PRESIDEN</p>
@@ -96,6 +97,7 @@ export function Inauguration({ game, enter }: { game: GameState; enter: () => vo
       <div className="actions">
         <button className="primary" onClick={enter}>Masuk Istana</button>
         <button className="outline" onClick={enter}>Lewati pelantikan</button>
+        <button className="outline" onClick={pause}>Menu Jeda</button>
       </div>
     </div>
   </main>;
@@ -144,7 +146,6 @@ export function PresidentialOffice({ game, navigate }: { game: GameState; naviga
   const [regionId, setRegion] = useState('sumatra');
   const [error, setError] = useState('');
   const [caller, setCaller] = useState<'finance' | 'party' | 'advisor'>('finance');
-  const [sound, setSound] = useState(() => localStorage.getItem('republik.sound') === 'on');
   const { openingAction, cabinetResponse } = useGame();
   const opening = game.opening;
   const activeIntro = opening && opening.stage !== 'complete';
@@ -212,13 +213,13 @@ export function PresidentialOffice({ game, navigate }: { game: GameState; naviga
           <div><dt>Perubahan relasi · {characters[opening.adviserId].fullName}</dt><dd>{opening.effects.relationship}</dd></div>
           <div><dt>Proyeksi saldo APBN</dt><dd>Rp{idNumber.format(accounts.balance)} T</dd></div>
         </dl></div>
-        <button className="primary" onClick={() => run({ type: 'acknowledge-opening' }, 'desk')}>Lanjut ke agenda mingguan</button>
+        <button className="primary" onClick={() => run({ type: 'acknowledge-opening' }, 'desk')}>Lanjut ke Bab 1</button>
       </div>}
       {error && <p className="error" role="alert">{error}</p>}
     </section>}
 
     {view === 'desk' && !activeIntro && <>
-      <WeeklyBriefing game={game} />
+      <ChapterBriefing game={game} />
       <MandateProgress game={game} />
       <section className="office-paper"><h2>Dokumen {game.president.name}</h2><p>APBN Tahun {c.budget.year} · Proyeksi saldo Rp{idNumber.format(accounts.balance)} T</p>
         <button className="outline" onClick={() => navigate('Negara')}>Tinjau dokumen APBN</button></section>
@@ -273,11 +274,5 @@ export function PresidentialOffice({ game, navigate }: { game: GameState; naviga
         <small>Indeks pembangunan {idNumber.format(region.development)}/100 · Dukungan {idNumber.format(region.support)}/100</small>
       </div></div>
       <button className="outline" onClick={() => navigate('Negara')}>Buka laporan wilayah</button></section>}
-    <SaveSlots />
-    <label className="check-label sound-control"><input type="checkbox" checked={sound} onChange={event => {
-      setSound(event.target.checked);
-      localStorage.setItem('republik.sound', event.target.checked ? 'on' : 'off');
-      if (event.target.checked) confirmSound();
-    }} /> Efek suara</label>
   </div>;
 }

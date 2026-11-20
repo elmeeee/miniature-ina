@@ -1,3 +1,5 @@
+import { chapterAgenda, chapterSummary, chooseChapter, validChapters } from './chapters';
+export { chapterAgenda, chapterDecisionLabel, chapterSummary } from './chapters';
 import { countElection, validElection } from './election';
 export { candidates, epilogues } from './election';
 import { chooseStory, offerStory, validStoryState } from './stories';
@@ -8,7 +10,10 @@ import type { CashTracking, Development, Accounts, Bill, BudgetPlan, CampaignSta
 import { accrue, balanceAccounts, clampMetric, forecast, updateEconomy, validPlan } from './fiscal';
 
 export type PresidencyAction =
-  | { type: 'week' | 'routine' }
+  | { type: 'week' | 'routine' | 'advance-chapter' }
+  | { type: 'close-chapter' }
+  | { type: 'view-finale' }
+  | { type: 'chapter-choice'; option: 0 | 1 }
   | { type: 'choose-story'; choiceId: string }
   | { type: 'submit-budget' | 'amend-budget'; plan: BudgetPlan }
   | { type: 'vote-budget' }
@@ -140,11 +145,41 @@ export function recordDevelopment(c: CampaignState, dispatch: Development) {
 export function applyPresidencyAction(state: GameState, action: PresidencyAction): GameState {
   validateCampaign(state.campaign);
   assert(!state.opening || state.opening.stage === 'complete', 'Selesaikan agenda perdana sebelum melanjutkan pemerintahan.');
+  const progression = state.campaign.chapters;
+  if (action.type === 'close-chapter' || action.type === 'view-finale') {
+    const next = structuredClone(state);
+    const run = next.campaign.chapters;
+    assert(run, 'Mode bab belum aktif.');
+    if (action.type === 'close-chapter') {
+      const summary = chapterSummary(next.campaign);
+      assert(summary, 'Belum ada ringkasan bab.');
+      run.acknowledged = summary;
+    } else {
+      assert(next.campaign.election && run.acknowledged === 20 && !run.finaleSeen, 'Finale tidak tersedia.');
+      run.finaleSeen = true;
+    }
+    validateCampaign(next.campaign);
+    return next;
+  }
+  assert(!chapterSummary(state.campaign), 'Baca ringkasan bab sebelum melanjutkan.');
+  assert(!progression || (action.type !== 'week' && action.type !== 'routine'), 'Gunakan agenda bab.');
   assert(state.campaign.week <= termWeeks, 'Masa jabatan telah berakhir.');
   const next = structuredClone(state);
   const c = next.campaign;
   const b = c.budget;
   switch (action.type) {
+    case 'chapter-choice':
+      chooseChapter(next, action.option);
+      break;
+    case 'advance-chapter':
+      assert(progression && chapterAgenda(next).decision === 2, 'Putuskan dua agenda utama sebelum melanjutkan.');
+      assert(!c.pendingEvent, 'Selesaikan peristiwa aktif.');
+      do {
+        advance(next);
+        if (c.week <= termWeeks) offerStory(c, random(c));
+        else c.election = countElection(c, () => random(c));
+      } while (!c.pendingEvent && !c.election && !chapterSummary(c));
+      break;
     case 'week':
     case 'routine':
       assert(!c.pendingEvent, 'Putuskan peristiwa yang aktif sebelum lanjut.');
@@ -316,7 +351,7 @@ export function validateCampaign(c: CampaignState) {
   })));
   assert(Array.isArray(c.briefings) && c.briefings.length === c.week - 1
     && c.briefings.every((b, i) => b && b.week === i + 1 && typeof b.message === 'string'));
-  assert(validElection(c));
+  assert(validElection(c) && validChapters(c));
   assert(Array.isArray(c.ministerReviews) && c.ministerReviews.every(r => r && integer(r.week, 1, c.week - 1)
     && r.week % 13 === 0 && typeof r.positionId === 'string' && Object.hasOwn(characters, r.holderId) && range(r.delivery, 0, 100)));
 }

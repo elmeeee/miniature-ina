@@ -14,8 +14,10 @@ export function offerStory(state: CampaignState, roll: number) {
   const eligible = stories.filter(story => !seen.has(story.id) && state.week >= story.firstWeek
     && state.week <= (story.lastWeek ?? termWeeks) && (!story.when || story.when(state))
     && (story.follows ? state.nextEvents.includes(story.id) : state.week % 4 === 1));
-  let slot = roll * eligible.reduce((total, story) => total + story.weight, 0);
-  for (const story of eligible) {
+  const followups = state.chapters ? eligible.filter(story => story.follows) : [];
+  const pool = followups.length > 0 ? followups : eligible;
+  let slot = roll * pool.reduce((total, story) => total + story.weight, 0);
+  for (const story of pool) {
     slot -= story.weight;
     if (slot < 0) {
       state.pendingEvent = story.id;
